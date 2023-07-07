@@ -24,7 +24,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto save(long userId, ItemDto dto) {
-        if (userService.getById(userId) == null){
+        if (userService.getById(userId) == null) {
             throw new ModelNotFoundException(
                     String.format("Пользователь с id - %d не найден!", userId)
             );
@@ -83,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> search(String query) {
-        if (query.isBlank()){
+        if (query.isBlank()) {
             return Collections.emptyList();
         }
         String lowQuery = query.toLowerCase();
