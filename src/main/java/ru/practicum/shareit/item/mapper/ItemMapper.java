@@ -14,21 +14,21 @@ public class ItemMapper {
                 .userId(dto.getUserId())
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .available(dto.isAvailable())
+                .available(dto.getAvailable())
                 .build();
     }
 
-    public static ItemDto itemToDto (Item item){
+    public static ItemDto itemToDto(Item item) {
         return ItemDto.builder()
                 .id(item.getId())
                 .userId(item.getUserId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .available(item.isAvailable())
+                .available(item.getAvailable())
                 .build();
     }
 
-    public static List<ItemDto> listToDtoList(List<Item> items){
+    public static List<ItemDto> listToDtoList(List<Item> items) {
         return items.stream().map(ItemMapper::itemToDto).collect(Collectors.toList());
     }
 }

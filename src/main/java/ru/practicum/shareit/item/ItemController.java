@@ -6,6 +6,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -16,23 +18,33 @@ import javax.validation.Valid;
 public class ItemController {
 
     private final ItemService service;
+
     @PostMapping
-    public ItemDto save (@RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                         @Valid ItemDto dto){
+    public ItemDto save(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
+                        @RequestBody @Valid ItemDto dto) {
         return service.save(userId, dto);
     }
 
-    @PatchMapping
+    @PatchMapping(path = "/{id}")
     public ItemDto update(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                          @Valid ItemDto dto){
-        //Если userId или id в dto = 0 item не существует
-        //Если userId не равен userId в dto с id полученному по запросу, то в доступе к операции отказано
-        return service.update(dto);
+                          @PathVariable Long id,
+                          @RequestBody ItemDto dto) {
+        return service.update(userId, id, dto);
     }
 
     @GetMapping(path = "/{id}")
-    public ItemDto getById(@PathVariable(value = "id") Long id){
+    public ItemDto getById(@PathVariable(value = "id") Long id) {
         return service.getById(id);
+    }
+
+    @GetMapping
+    public List<ItemDto> getListByUserId(@RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+        return service.getByUserId(userId);
+    }
+
+    @GetMapping(path = "/search")
+    public List<ItemDto> search(@RequestParam(value = "text") String text) {
+        return service.search(text);
     }
 
 }
