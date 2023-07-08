@@ -8,7 +8,7 @@ public interface UserStorage {
 
     User save(User user);
 
-    User update(User user);
+    //User update(User user);
 
     User getById(long id);
 

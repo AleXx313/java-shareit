@@ -27,9 +27,9 @@ public class ErrorHandler {
         return new ErrorResponse("Передан некорректный объект!", e.getMessage());
     }
 
-    @ExceptionHandler(Error.class)
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleNotSpecializedExceptions(final Error e) {
+    public ErrorResponse handleNotSpecializedExceptions(final Exception e) {
         return new ErrorResponse("Передан некорректный объект!", e.getMessage());
     }
 }

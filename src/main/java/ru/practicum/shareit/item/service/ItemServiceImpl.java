@@ -14,8 +14,8 @@ import ru.practicum.shareit.user.service.UserService;
 import java.util.Collections;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
@@ -31,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
         }
         dto.setUserId(userId);
         Item item = storage.save(ItemMapper.dtoToItem(dto));
-        log.debug("Предмет - {} с id - {} добавлен!", item.getName(), item.getId());
+        log.info("Предмет - {} с id - {} добавлен!", item.getName(), item.getId());
         return ItemMapper.itemToDto(item);
     }
 
@@ -54,8 +54,8 @@ public class ItemServiceImpl implements ItemService {
             );
         }
         Item updatedItem = updateItemFields(item, dto);
-        log.debug("Предмет - {} с id - {} обновлен!", updatedItem.getName(), updatedItem.getId());
-        return ItemMapper.itemToDto(storage.update(updatedItem));
+        log.info("Предмет - {} с id - {} обновлен!", updatedItem.getName(), updatedItem.getId());
+        return ItemMapper.itemToDto(updatedItem);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
                             id)
             );
         }
-        log.debug("Предмет - {} с id - {} запрошен!", item.getName(), item.getId());
+        log.info("Предмет - {} с id - {} запрошен!", item.getName(), item.getId());
         return ItemMapper.itemToDto(item);
     }
 
@@ -77,7 +77,7 @@ public class ItemServiceImpl implements ItemService {
         if (items.isEmpty()) {
             return Collections.emptyList();
         }
-        log.debug("Запрошен список предметов пользователя с id {}!", userId);
+        log.info("Получен список предметов пользователя с id {}!", userId);
         return ItemMapper.listToDtoList(items);
     }
 
@@ -91,7 +91,7 @@ public class ItemServiceImpl implements ItemService {
         if (items.isEmpty()) {
             return Collections.emptyList();
         }
-        log.debug("Запрошен поиск по следующему порядку букв - {}!", query);
+        log.info("Получен список предметов соответсвующий поиску по заданному порядку букв - {}!", query);
         return ItemMapper.listToDtoList(items);
     }
 

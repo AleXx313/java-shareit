@@ -8,7 +8,7 @@ public interface ItemStorage {
 
     Item save(Item item);
 
-    Item update(Item item);
+//    Item update(Item item);
 
     Item getById(long id);
 

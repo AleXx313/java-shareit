@@ -28,12 +28,12 @@ public class UserStorageImpl implements UserStorage {
         return getById(user.getId());
     }
 
-    @Override
-    public User update(User user) {
-        users.put(user.getId(), user);
-
-        return getById(user.getId());
-    }
+//    @Override
+//    public User update(User user) {
+//        users.put(user.getId(), user);
+//
+//        return getById(user.getId());
+//    }
 
     @Override
     public User getById(long id) {

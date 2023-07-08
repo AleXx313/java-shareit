@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     public UserDto save(UserDto dto) {
         checkEmailExistException(dto.getEmail());
         User savedUser = storage.save(UserMapper.dtoToUser(dto));
-        log.debug("Создан пользователь по имени - {} с id - {}!", savedUser.getName(), savedUser.getId());
+        log.info("Создан пользователь по имени - {} с id - {}!", savedUser.getName(), savedUser.getId());
         return UserMapper.userToDto(savedUser);
     }
 
@@ -40,8 +40,8 @@ public class UserServiceImpl implements UserService {
             checkEmailExistException(dto.getEmail());
         }
         User updatedUser = updateUserFields(user, dto);
-        log.debug("Обновлен пользователь по имени - {} с id - {}!", updatedUser.getName(), updatedUser.getId());
-        return UserMapper.userToDto(storage.update(updatedUser));
+        log.info("Обновлен пользователь по имени - {} с id - {}!", updatedUser.getName(), updatedUser.getId());
+        return UserMapper.userToDto(updatedUser);
     }
 
     @Override
@@ -53,19 +53,19 @@ public class UserServiceImpl implements UserService {
                             id)
             );
         }
-        log.debug("Получен пользователь с id - {}!", id);
+        log.info("Получен пользователь с id - {}!", id);
         return UserMapper.userToDto(user);
     }
 
     @Override
     public List<UserDto> getAllUsers() {
-        log.debug("Получен список пользователей!");
+        log.info("Получен список пользователей!");
         return UserMapper.listToDtoList(storage.getAllUsers());
     }
 
     @Override
     public void deleteById(long id) {
-        log.debug("Удален пользователь с id - {}!", id);
+        log.info("Удален пользователь с id - {}!", id);
         storage.deleteById(id);
     }
 
