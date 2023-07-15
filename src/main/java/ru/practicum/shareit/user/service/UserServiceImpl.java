@@ -2,15 +2,22 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exception.EmailAlreadyExistException;
 import ru.practicum.shareit.exception.ModelNotFoundException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -76,6 +83,7 @@ public class UserServiceImpl implements UserService {
         if (dto.getEmail() != null && dto.getEmail() != user.getEmail()) {
             user.setEmail(dto.getEmail());
         }
+        isValid(user);
         return user;
     }
 
@@ -84,5 +92,15 @@ public class UserServiceImpl implements UserService {
             throw new EmailAlreadyExistException(
                     String.format("Электронная почта %s уже зарегистрирована!", email)
             );
+    }
+
+    private boolean isValid(User user){
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        if (violations.isEmpty()){
+            return true;
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Переданы некорректные данные для обновления!");
+        }
     }
 }

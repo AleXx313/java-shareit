@@ -2,7 +2,10 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 import ru.practicum.shareit.exception.UserHaveNotAccessException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -11,8 +14,12 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemStorage;
 import ru.practicum.shareit.user.service.UserService;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -105,6 +112,17 @@ public class ItemServiceImpl implements ItemService {
         if (dto.getAvailable() != null && dto.getAvailable() != item.getAvailable()) {
             item.setAvailable(dto.getAvailable());
         }
+        isValid(item);
         return item;
+    }
+
+    private boolean isValid(Item item){
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        if (violations.isEmpty()){
+            return true;
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Переданы некорректные данные для обновления!");
+        }
     }
 }
