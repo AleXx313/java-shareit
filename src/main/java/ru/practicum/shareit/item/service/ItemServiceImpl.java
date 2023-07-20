@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.UserHaveNotAccessException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.repository.ItemStorage;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -19,6 +20,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -27,31 +29,29 @@ import java.util.Set;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemStorage storage;
+    private final ItemRepository itemRepository;
     private final UserService userService;
 
     @Override
     public ItemDto save(long userId, ItemDto dto) {
-        if (userService.getById(userId) == null) {
-            throw new ModelNotFoundException(
-                    String.format("Пользователь с id - %d не найден!", userId)
-            );
-        }
+        userService.getById(userId);
         dto.setUserId(userId);
-        Item item = storage.save(ItemMapper.dtoToItem(dto));
+        Item item = itemRepository.save(ItemMapper.dtoToItem(dto));
         log.info("Предмет - {} с id - {} добавлен!", item.getName(), item.getId());
         return ItemMapper.itemToDto(item);
     }
 
     @Override
     public ItemDto update(long userId, long id, ItemDto dto) {
-        Item item = storage.getById(id);
-        if (item == null) {
+        Optional<Item> itemOpt = itemRepository.findById(id);
+        if (itemOpt.isEmpty()) {
             throw new ModelNotFoundException(
                     String.format("Предмет - %s с id - %d отсутствует!",
                             dto.getName(),
                             dto.getId())
             );
         }
+        Item item = itemOpt.get();
         if (item.getUserId() != userId) {
             throw new UserHaveNotAccessException(
                     String.format("Пользователь с id - %d не имеет право изменять предмет - %s с id - %d!",
@@ -60,28 +60,30 @@ public class ItemServiceImpl implements ItemService {
                             dto.getId())
             );
         }
-        Item updatedItem = updateItemFields(item, dto);
+        Item updatedItem = itemRepository.save(updateItemFields(item, dto));
         log.info("Предмет - {} с id - {} обновлен!", updatedItem.getName(), updatedItem.getId());
         return ItemMapper.itemToDto(updatedItem);
     }
 
     @Override
     public ItemDto getById(long id) {
-        Item item = storage.getById(id);
-        if (item == null) {
+        Optional<Item> itemOpt = itemRepository.findById(id);
+        if (itemOpt.isEmpty()) {
             throw new ModelNotFoundException(
                     String.format("Предмет с id - %d отсутствует!",
                             id)
             );
         }
+        Item item = itemOpt.get();
         log.info("Предмет - {} с id - {} запрошен!", item.getName(), item.getId());
         return ItemMapper.itemToDto(item);
     }
 
     @Override
     public List<ItemDto> getByUserId(long userId) {
-        List<Item> items = storage.getByUserId(userId);
+        List<Item> items = itemRepository.findByUserId(userId);
         if (items.isEmpty()) {
+            log.info("Список предметов пользователя с id {} пуст!", userId);
             return Collections.emptyList();
         }
         log.info("Получен список предметов пользователя с id {}!", userId);
