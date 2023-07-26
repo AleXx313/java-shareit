@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto save(UserDto dto) {
-        checkEmailExistException(dto.getEmail());
+        //checkEmailExistException(dto.getEmail());
         User savedUser = userRepository.save(UserMapper.dtoToUser(dto));
         log.info("Создан пользователь по имени - {} с id - {}!", savedUser.getName(), savedUser.getId());
         return UserMapper.userToDto(savedUser);
