@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.AssertTrue;
@@ -22,8 +21,9 @@ public class BookingRequestDto {
     private LocalDateTime end;
     @NotNull
     private Long itemId;
+
     @AssertTrue
-    private boolean isEndAfterStart(){
+    private boolean isEndAfterStart() {
         return start == null || end == null || end.isAfter(start);
     }
 }

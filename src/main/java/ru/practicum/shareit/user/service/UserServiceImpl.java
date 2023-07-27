@@ -98,10 +98,10 @@ public class UserServiceImpl implements UserService {
             );
     }
 
-    private boolean isValid(User user){
+    private boolean isValid(User user) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        if (violations.isEmpty()){
+        if (violations.isEmpty()) {
             return true;
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Переданы некорректные данные для обновления!");

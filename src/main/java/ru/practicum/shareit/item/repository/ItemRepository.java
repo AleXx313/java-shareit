@@ -8,9 +8,6 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-
-
-
     List<Item> findAllByOwnerIdOrderById(Long userId);
 
     @Query("select it " +

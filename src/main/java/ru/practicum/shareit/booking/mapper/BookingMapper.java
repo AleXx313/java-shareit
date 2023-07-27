@@ -2,8 +2,6 @@ package ru.practicum.shareit.booking.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingMapper {
 
-    public static Booking requestDtoToBooking (BookingRequestDto dto, Item item, User user){
+    public static Booking requestDtoToBooking(BookingRequestDto dto, Item item, User user) {
         return Booking.builder()
                 .item(item)
                 .booker(user)
@@ -29,7 +27,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static BookingDto bookingToDto (Booking booking){
+    public static BookingDto bookingToDto(Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
                 .item(ItemMapper.itemToShort(booking.getItem()))
@@ -40,7 +38,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static List<BookingDto> listToDtoList(List<Booking> bookings){
+    public static List<BookingDto> listToDtoList(List<Booking> bookings) {
         return bookings.stream().map(BookingMapper::bookingToDto).collect(Collectors.toList());
     }
 }

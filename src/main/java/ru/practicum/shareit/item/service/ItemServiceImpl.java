@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingDtoShort;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.InvalidBookingException;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 import ru.practicum.shareit.exception.UserHaveNotAccessException;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
@@ -29,10 +30,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -97,13 +95,15 @@ public class ItemServiceImpl implements ItemService {
         if (item.getOwner().getId() == userId) {
             nextBooking = bookingRepository.findTopByItemIdAndStatusAndStartIsAfterOrderByStart(id,
                     BookingStatus.APPROVED, LocalDateTime.now());
-            lastBooking = bookingRepository.findTopByItemIdAndStatusOrderByEnd(id, BookingStatus.APPROVED);
+            lastBooking = bookingRepository.findTopByItemIdAndStatusAndStartIsBeforeOrderByEndDesc(id,
+                    BookingStatus.APPROVED, LocalDateTime.now());
         }
 
+        List<Comment> comments = commentRepository.findByItemId(id);
 
         log.info("Предмет - {} с id - {} запрошен!", item.getName(), item.getId());
 
-        return ItemMapper.itemToResponse(item, nextBooking, lastBooking);
+        return ItemMapper.itemToResponse(item, nextBooking, lastBooking, CommentMapper.listToDtoList(comments));
     }
 
     @Override
@@ -143,7 +143,7 @@ public class ItemServiceImpl implements ItemService {
 
         Booking booking = bookingRepository.findTopByItemIdAndBookerIdAndStatusAndEndIsBefore(
                         itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())
-                .orElseThrow(() -> new ModelNotFoundException(
+                .orElseThrow(() -> new InvalidBookingException(
                         String.format("Пользователь с id - %d предмет с id - %d ранее не бронировал!",
                                 userId, itemId)));
 

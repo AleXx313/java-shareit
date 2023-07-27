@@ -41,10 +41,10 @@ public class BookingController {
     //Поиск бронирований пользователя
     @GetMapping
     public List<BookingDto> findByBooker(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                                       @RequestParam(
-                                               value = "state",
-                                               required = false,
-                                               defaultValue = "ALL") String state) {
+                                         @RequestParam(
+                                                 value = "state",
+                                                 required = false,
+                                                 defaultValue = "ALL") String state) {
         return bookingService.findByBooker(userId, state);
     }
 

@@ -26,6 +26,7 @@ public class ErrorHandler {
     public ErrorResponse handleInvalidBookingException(final InvalidBookingException e) {
         return new ErrorResponse(e.getMessage(), e.getMessage());
     }
+
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidExceptions(final MethodArgumentNotValidException e) {
