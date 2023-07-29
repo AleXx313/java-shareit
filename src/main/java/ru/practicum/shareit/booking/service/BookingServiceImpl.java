@@ -2,10 +2,12 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.InvalidBookingException;
@@ -28,6 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final ItemRepository itemRepository;
 
     @Override
+    @Transactional
     public BookingDto save(Long userId, BookingRequestDto bookingRequestDto) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
@@ -60,6 +63,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingDto update(Long id, Long userId, boolean approved) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Бронирование> с id - %d не найдено!",
@@ -81,6 +85,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDto findById(Long id, Long userId) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Бронирование> с id - %d не найдено!",
@@ -94,71 +99,72 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findByBooker(Long userId, String state) {
+    @Transactional(readOnly = true)
+    public List<BookingDto> findByBooker(Long userId, BookingState state) {
         userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Пользователь с id %d не найден!", userId)));
 
         List<Booking> bookings;
         switch (state) {
-            case "ALL":
+            case ALL:
                 bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
                         LocalDateTime.now(),
                         LocalDateTime.now());
                 break;
-            case "PAST":
+            case PAST:
                 bookings = bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId,
                         LocalDateTime.now());
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId,
                         LocalDateTime.now());
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId,
                         BookingStatus.REJECTED);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId,
                         BookingStatus.WAITING);
                 break;
             default:
                 throw new InvalidBookingException("Unknown state: " + state);
-
         }
         return BookingMapper.listToDtoList(bookings);
     }
 
     @Override
-    public List<BookingDto> findByOwner(Long userId, String state) {
+    @Transactional(readOnly = true)
+    public List<BookingDto> findByOwner(Long userId, BookingState state) {
         userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Пользователь с id %d не найден!", userId)));
 
         List<Booking> bookings;
         switch (state) {
-            case "ALL":
+            case ALL:
                 bookings = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
                         LocalDateTime.now(),
                         LocalDateTime.now());
                 break;
-            case "PAST":
+            case PAST:
                 bookings = bookingRepository.findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(userId,
                         LocalDateTime.now());
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = bookingRepository.findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId,
                         LocalDateTime.now());
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId,
                         BookingStatus.REJECTED);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId,
                         BookingStatus.WAITING);
                 break;

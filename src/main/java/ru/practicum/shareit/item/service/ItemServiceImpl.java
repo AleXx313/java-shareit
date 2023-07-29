@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
@@ -45,6 +44,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
+    @Transactional
     public ItemDto save(long userId, ItemDto dto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Пользователь с id - %d не найден!", userId)));
@@ -56,6 +56,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto update(long userId, long id, ItemDto dto) {
         Optional<Item> itemOpt = itemRepository.findById(id);
         if (itemOpt.isEmpty()) {
@@ -80,6 +81,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemDtoResponse getById(long id, long userId) {
         Optional<Item> itemOpt = itemRepository.findById(id);
         if (itemOpt.isEmpty()) {
@@ -107,6 +109,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDtoResponse> getByUserId(long userId) {
         List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId);
         if (items.isEmpty()) {
@@ -119,6 +122,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> search(String query) {
         if (query.isBlank()) {
             log.info("Пустой параметр запроса!");
@@ -134,6 +138,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto saveComment(Long itemId, Long userId, CommentRequest commentRequest) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Предмет с id - %d не найден!", itemId)));

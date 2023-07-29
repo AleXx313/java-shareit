@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exception.EmailAlreadyExistException;
 import ru.practicum.shareit.exception.ModelNotFoundException;
@@ -29,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public UserDto save(UserDto dto) {
         //checkEmailExistException(dto.getEmail());
         User savedUser = userRepository.save(UserMapper.dtoToUser(dto));
@@ -37,6 +39,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto update(Long id, UserDto dto) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
@@ -56,6 +59,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDto getById(long id) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
@@ -69,12 +73,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
         log.info("Получен список пользователей!");
         return UserMapper.listToDtoList(userRepository.findAll());
     }
 
     @Override
+    @Transactional
     public void deleteById(long id) {
         log.info("Удален пользователь с id - {}!", id);
         userRepository.deleteById(id);
@@ -98,12 +104,10 @@ public class UserServiceImpl implements UserService {
             );
     }
 
-    private boolean isValid(User user) {
+    private void isValid(User user) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        if (violations.isEmpty()) {
-            return true;
-        } else {
+        if (!violations.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Переданы некорректные данные для обновления!");
         }
     }
