@@ -1,8 +1,9 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -11,14 +12,26 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "items")
 public class Item {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @JoinColumn(name = "user_id")
+    private User owner;
     @NotBlank
+    @Column(name = "name")
     private String name;
     @NotBlank
+    @Column(name = "description")
     private String description;
     @NotNull
+    @Column(name = "available")
     private Boolean available;
 }

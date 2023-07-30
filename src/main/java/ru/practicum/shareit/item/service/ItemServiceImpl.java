@@ -4,55 +4,70 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.shareit.booking.dto.BookingDtoShort;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.InvalidBookingException;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 import ru.practicum.shareit.exception.UserHaveNotAccessException;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.dto.CommentRequest;
+import ru.practicum.shareit.item.comment.mapper.CommentMapper;
+import ru.practicum.shareit.item.comment.model.Comment;
+import ru.practicum.shareit.item.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoResponse;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemStorage;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemStorage storage;
-    private final UserService userService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
+    @Transactional
     public ItemDto save(long userId, ItemDto dto) {
-        if (userService.getById(userId) == null) {
-            throw new ModelNotFoundException(
-                    String.format("Пользователь с id - %d не найден!", userId)
-            );
-        }
-        dto.setUserId(userId);
-        Item item = storage.save(ItemMapper.dtoToItem(dto));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
+                String.format("Пользователь с id - %d не найден!", userId)));
+        Item itemToSave = ItemMapper.dtoToItem(dto);
+        itemToSave.setOwner(user);
+        Item item = itemRepository.save(itemToSave);
         log.info("Предмет - {} с id - {} добавлен!", item.getName(), item.getId());
         return ItemMapper.itemToDto(item);
     }
 
     @Override
+    @Transactional
     public ItemDto update(long userId, long id, ItemDto dto) {
-        Item item = storage.getById(id);
-        if (item == null) {
+        Optional<Item> itemOpt = itemRepository.findById(id);
+        if (itemOpt.isEmpty()) {
             throw new ModelNotFoundException(
                     String.format("Предмет - %s с id - %d отсутствует!",
                             dto.getName(),
                             dto.getId())
             );
         }
-        if (item.getUserId() != userId) {
+        Item item = itemOpt.get();
+        if (item.getOwner().getId() != userId) {
             throw new UserHaveNotAccessException(
                     String.format("Пользователь с id - %d не имеет право изменять предмет - %s с id - %d!",
                             userId,
@@ -60,46 +75,89 @@ public class ItemServiceImpl implements ItemService {
                             dto.getId())
             );
         }
-        Item updatedItem = updateItemFields(item, dto);
+        Item updatedItem = itemRepository.save(updateItemFields(item, dto));
         log.info("Предмет - {} с id - {} обновлен!", updatedItem.getName(), updatedItem.getId());
         return ItemMapper.itemToDto(updatedItem);
     }
 
     @Override
-    public ItemDto getById(long id) {
-        Item item = storage.getById(id);
-        if (item == null) {
+    @Transactional(readOnly = true)
+    public ItemDtoResponse getById(long id, long userId) {
+        Optional<Item> itemOpt = itemRepository.findById(id);
+        if (itemOpt.isEmpty()) {
             throw new ModelNotFoundException(
                     String.format("Предмет с id - %d отсутствует!",
                             id)
             );
         }
+        Item item = itemOpt.get();
+
+        BookingDtoShort nextBooking = null;
+        BookingDtoShort lastBooking = null;
+        if (item.getOwner().getId() == userId) {
+            nextBooking = bookingRepository.findTopByItemIdAndStatusAndStartIsAfterOrderByStart(id,
+                    BookingStatus.APPROVED, LocalDateTime.now());
+            lastBooking = bookingRepository.findTopByItemIdAndStatusAndStartIsBeforeOrderByEndDesc(id,
+                    BookingStatus.APPROVED, LocalDateTime.now());
+        }
+
+        List<Comment> comments = commentRepository.findByItemId(id);
+
         log.info("Предмет - {} с id - {} запрошен!", item.getName(), item.getId());
-        return ItemMapper.itemToDto(item);
+
+        return ItemMapper.itemToResponse(item, nextBooking, lastBooking, CommentMapper.listToDtoList(comments));
     }
 
     @Override
-    public List<ItemDto> getByUserId(long userId) {
-        List<Item> items = storage.getByUserId(userId);
+    @Transactional(readOnly = true)
+    public List<ItemDtoResponse> getByUserId(long userId) {
+        List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId);
         if (items.isEmpty()) {
+            log.info("Список предметов пользователя с id {} пуст!", userId);
             return Collections.emptyList();
         }
         log.info("Получен список предметов пользователя с id {}!", userId);
-        return ItemMapper.listToDtoList(items);
+        return items.stream().map(i -> getById(i.getId(), userId)).collect(Collectors.toList());
     }
 
+
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> search(String query) {
         if (query.isBlank()) {
+            log.info("Пустой параметр запроса!");
             return Collections.emptyList();
         }
-        String lowQuery = query.toLowerCase();
-        List<Item> items = storage.search(lowQuery);
+        List<Item> items = itemRepository.search(query);
         if (items.isEmpty()) {
+            log.info("По заданному порядку букв - {} предметов не найдено!", query);
             return Collections.emptyList();
         }
         log.info("Получен список предметов соответсвующий поиску по заданному порядку букв - {}!", query);
         return ItemMapper.listToDtoList(items);
+    }
+
+    @Override
+    @Transactional
+    public CommentDto saveComment(Long itemId, Long userId, CommentRequest commentRequest) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ModelNotFoundException(
+                String.format("Предмет с id - %d не найден!", itemId)));
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
+                String.format("Пользователь с id - %d не найден!", userId)));
+
+        Booking booking = bookingRepository.findTopByItemIdAndBookerIdAndStatusAndEndIsBefore(
+                        itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())
+                .orElseThrow(() -> new InvalidBookingException(
+                        String.format("Пользователь с id - %d предмет с id - %d ранее не бронировал!",
+                                userId, itemId)));
+
+        Comment comment = CommentMapper.requestToComment(item, user, commentRequest.getText());
+
+        Comment savedComment = commentRepository.save(comment);
+
+
+        return CommentMapper.commentToDto(savedComment);
     }
 
     private Item updateItemFields(Item item, ItemDto dto) {
@@ -116,12 +174,10 @@ public class ItemServiceImpl implements ItemService {
         return item;
     }
 
-    private boolean isValid(Item item){
+    private void isValid(Item item) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<Item>> violations = validator.validate(item);
-        if (violations.isEmpty()){
-            return true;
-        } else {
+        if (!violations.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Переданы некорректные данные для обновления!");
         }
     }
