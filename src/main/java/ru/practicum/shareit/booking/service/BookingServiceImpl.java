@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -17,6 +20,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -100,34 +104,48 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingDto> findByBooker(Long userId, BookingState state) {
+    public List<BookingDto> findByBooker(Long userId, BookingState state, int from, int size) {
         userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Пользователь с id %d не найден!", userId)));
+
+        PageRequest request = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"));
 
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByBookerId(
+                        request,
+                        userId);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfter(
+                        request,
+                        userId,
                         LocalDateTime.now(),
                         LocalDateTime.now());
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndEndIsBefore(
+                        request,
+                        userId,
                         LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndStartIsAfter(
+                        request,
+                        userId,
                         LocalDateTime.now());
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndStatus(
+                        request,
+                        userId,
                         BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndStatus(
+                        request,
+                        userId,
                         BookingStatus.WAITING);
                 break;
             default:
@@ -138,34 +156,45 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingDto> findByOwner(Long userId, BookingState state) {
+    public List<BookingDto> findByOwner(Long userId, BookingState state, int from, int size) {
         userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Пользователь с id %d не найден!", userId)));
+        PageRequest request = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"));
 
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByItemOwnerId(request, userId);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfter(
+                        request,
+                        userId,
                         LocalDateTime.now(),
                         LocalDateTime.now());
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndEndIsBefore(
+                        request,
+                        userId,
                         LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndStartIsAfter(
+                        request,
+                        userId,
                         LocalDateTime.now());
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndStatus(
+                        request,
+                        userId,
                         BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndStatus(
+                        request,
+                        userId,
                         BookingStatus.WAITING);
                 break;
             default:

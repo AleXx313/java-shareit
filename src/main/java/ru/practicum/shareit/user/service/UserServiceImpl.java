@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkEmailExistException(String email) {
-        if (userRepository.findAll().stream().anyMatch(a -> a.getEmail().equals(email))) //todo Переделать на поиск с условием!
+        if (userRepository.findAll().stream().anyMatch(a -> a.getEmail().equals(email)))
             throw new EmailAlreadyExistException(
                     String.format("Электронная почта %s уже зарегистрирована!", email)
             );

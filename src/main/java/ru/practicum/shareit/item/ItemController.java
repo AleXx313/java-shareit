@@ -9,11 +9,9 @@ import ru.practicum.shareit.item.dto.ItemDtoResponse;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
@@ -40,14 +38,25 @@ public class ItemController {
         return service.getById(id, userId);
     }
 
+    /*
+    todo Пагинация
+     */
+
     @GetMapping
-    public List<ItemDtoResponse> getListByUserId(@RequestHeader(value = "X-Sharer-User-Id") Long userId) {
-        return service.getByUserId(userId);
+    public List<ItemDtoResponse> getListByUserId(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
+                                                 @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                                 @RequestParam(required = false, defaultValue = "10") @Min(1) int size) {
+        return service.getByUserId(userId, from, size);
     }
 
+    /*
+    todo Пагинация
+    */
     @GetMapping(path = "/search")
-    public List<ItemDto> search(@RequestParam(value = "text") String text) {
-        return service.search(text);
+    public List<ItemDto> search(@RequestParam(value = "text") String text,
+                                @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                @RequestParam(required = false, defaultValue = "10") @Min(1) int size) {
+        return service.search(text, from, size);
     }
 
     @PostMapping(path = "/{id}/comment")

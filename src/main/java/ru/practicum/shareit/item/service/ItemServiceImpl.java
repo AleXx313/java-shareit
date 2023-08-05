@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,8 @@ import ru.practicum.shareit.item.dto.ItemDtoResponse;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -42,6 +46,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final RequestRepository requestRepository;
 
     @Override
     @Transactional
@@ -50,6 +55,11 @@ public class ItemServiceImpl implements ItemService {
                 String.format("Пользователь с id - %d не найден!", userId)));
         Item itemToSave = ItemMapper.dtoToItem(dto);
         itemToSave.setOwner(user);
+        if(dto.getRequestId() != null){
+            ItemRequest itemRequest = requestRepository.findById(dto.getRequestId()).orElseThrow(
+                    () -> new ModelNotFoundException(String.format("Запрос с id - %d не найден!", dto.getRequestId())));
+            itemToSave.setRequest(itemRequest);
+        }
         Item item = itemRepository.save(itemToSave);
         log.info("Предмет - {} с id - {} добавлен!", item.getName(), item.getId());
         return ItemMapper.itemToDto(item);
@@ -110,8 +120,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemDtoResponse> getByUserId(long userId) {
-        List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId);
+    public List<ItemDtoResponse> getByUserId(long userId, int from, int size) {
+        PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
+        List<Item> items = itemRepository.findAllByOwnerIdOrderById(pageRequest, userId);
         if (items.isEmpty()) {
             log.info("Список предметов пользователя с id {} пуст!", userId);
             return Collections.emptyList();
@@ -123,12 +134,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemDto> search(String query) {
+    public List<ItemDto> search(String query, int from, int size) {
         if (query.isBlank()) {
             log.info("Пустой параметр запроса!");
             return Collections.emptyList();
         }
-        List<Item> items = itemRepository.search(query);
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        List<Item> items = itemRepository.search(pageRequest, query);
         if (items.isEmpty()) {
             log.info("По заданному порядку букв - {} предметов не найдено!", query);
             return Collections.emptyList();

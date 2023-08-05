@@ -15,9 +15,9 @@ public interface ItemService {
 
     ItemDtoResponse getById(long id, long userId);
 
-    List<ItemDtoResponse> getByUserId(long userId);
+    List<ItemDtoResponse> getByUserId(long userId, int from, int size);
 
-    List<ItemDto> search(String query);
+    List<ItemDto> search(String query, int from, int size);
 
     CommentDto saveComment(Long itemId, Long userId, CommentRequest commentRequest);
 }
