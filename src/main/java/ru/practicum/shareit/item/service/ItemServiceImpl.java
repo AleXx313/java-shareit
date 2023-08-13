@@ -54,7 +54,7 @@ public class ItemServiceImpl implements ItemService {
                 String.format("Пользователь с id - %d не найден!", userId)));
         Item itemToSave = ItemMapper.dtoToItem(dto);
         itemToSave.setOwner(user);
-        if(dto.getRequestId() != null){
+        if (dto.getRequestId() != null) {
             ItemRequest itemRequest = requestRepository.findById(dto.getRequestId()).orElseThrow(
                     () -> new ModelNotFoundException(String.format("Запрос с id - %d не найден!", dto.getRequestId())));
             itemToSave.setRequest(itemRequest);

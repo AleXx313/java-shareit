@@ -25,6 +25,7 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+
     @Override
     @Transactional(readOnly = true)
     public List<ItemRequestDto> findAllByRequester(Long userId) {

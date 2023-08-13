@@ -10,7 +10,9 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "bookings")
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

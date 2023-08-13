@@ -40,7 +40,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto update(Long id, UserDto dto) {
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty()) {throw new ModelNotFoundException(
+        if (userOpt.isEmpty()) {
+            throw new ModelNotFoundException(
                     String.format("Пользователь с id - %d не найден!",
                             dto.getId())
             );
