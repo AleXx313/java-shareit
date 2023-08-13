@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -20,8 +19,8 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.awt.print.Book;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto update(Long id, Long userId, boolean approved) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ModelNotFoundException(
-                String.format("Бронирование> с id - %d не найдено!",
+                String.format("Бронирование с id - %d не найдено!",
                         id)));
 
         if (!booking.getItem().getOwner().getId().equals(userId)) {
@@ -92,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public BookingDto findById(Long id, Long userId) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ModelNotFoundException(
-                String.format("Бронирование> с id - %d не найдено!",
+                String.format("Бронирование с id - %d не найдено!",
                         id)));
         if (booking.getItem().getOwner().getId().equals(userId) || booking.getBooker().getId().equals(userId)) {
             return BookingMapper.bookingToDto(booking);
@@ -149,7 +148,7 @@ public class BookingServiceImpl implements BookingService {
                         BookingStatus.WAITING);
                 break;
             default:
-                throw new InvalidBookingException("Unknown state: " + state);
+                bookings = Collections.emptyList();
         }
         return BookingMapper.listToDtoList(bookings);
     }
@@ -198,7 +197,7 @@ public class BookingServiceImpl implements BookingService {
                         BookingStatus.WAITING);
                 break;
             default:
-                throw new InvalidBookingException("Unknown state: " + state);
+                bookings = Collections.emptyList();
 
         }
         return BookingMapper.listToDtoList(bookings);

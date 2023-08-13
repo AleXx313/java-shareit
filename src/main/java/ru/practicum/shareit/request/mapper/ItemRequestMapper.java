@@ -14,11 +14,6 @@ import java.util.stream.Collectors;
 public class ItemRequestMapper {
 
     public static ItemRequestDto requestToDto(ItemRequest itemRequest){
-//        String regDate = DateTimeFormatter
-//                .ofPattern("yyyy.MM.dd hh:mm:ss")
-//                .withZone(ZoneOffset.UTC)
-//                .format(itemRequest.getCreated());
-
         return ItemRequestDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())

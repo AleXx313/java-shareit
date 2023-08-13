@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDtoShort;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.InvalidBookingException;
@@ -158,7 +157,7 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Пользователь с id - %d не найден!", userId)));
 
-        Booking booking = bookingRepository.findTopByItemIdAndBookerIdAndStatusAndEndIsBefore(
+        bookingRepository.findTopByItemIdAndBookerIdAndStatusAndEndIsBefore(
                         itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())
                 .orElseThrow(() -> new InvalidBookingException(
                         String.format("Пользователь с id - %d предмет с id - %d ранее не бронировал!",
