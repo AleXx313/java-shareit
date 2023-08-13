@@ -14,9 +14,10 @@ class UserDtoJsonTest {
 
     @Autowired
     private JacksonTester<UserDto> json;
+
     @SneakyThrows
     @Test
-    void testUserDto(){
+    void testUserDto() {
         UserDto userDto = UserDto.builder().id(1L).name("user").email("user@email.com").build();
 
         JsonContent<UserDto> result = json.write(userDto);

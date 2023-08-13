@@ -71,7 +71,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void save_whenUserExist_thenSaveItemAndReturnDto(){
+    void save_whenUserExist_thenSaveItemAndReturnDto() {
         long userId = 1L;
         User user = new User(1L, "User", "user@mail.ru");
         Item item = Item.builder().id(1L).name("Item").description("some item").available(true).owner(user).build();
@@ -89,7 +89,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void save_whenItemDtoHasRequestId_thenItemShouldBeSavedWithRequestId(){
+    void save_whenItemDtoHasRequestId_thenItemShouldBeSavedWithRequestId() {
         long userId = 1L;
         User user = new User(1L, "User", "user@mail.ru");
         User requester = new User(2L, "Requester", "requester@mail.ru");
@@ -124,8 +124,9 @@ class ItemServiceImplTest {
         Item capturedItem = itemArgumentCaptor.getValue();
         assertThat(capturedItem.getRequest()).isEqualTo(itemRequest);
     }
+
     @Test
-    void save_whenItemDtoHasRequestIdAndRequestDoesNotExist_thenThrowModelNotFoundException(){
+    void save_whenItemDtoHasRequestIdAndRequestDoesNotExist_thenThrowModelNotFoundException() {
         long userId = 1L;
         User user = new User(1L, "User", "user@mail.ru");
         ItemDto itemDto = ItemDto.builder().id(1L)
@@ -137,7 +138,7 @@ class ItemServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(requestRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(()->itemService.save(userId, itemDto))
+        assertThatThrownBy(() -> itemService.save(userId, itemDto))
                 .isInstanceOf(ModelNotFoundException.class)
                 .hasMessage("Запрос с id - 1 не найден!");
         verify(userRepository, times(1)).findById(userId);
@@ -181,7 +182,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void update_whenUpdateIsValid_thenUpdateItem(){
+    void update_whenUpdateIsValid_thenUpdateItem() {
         long userId = 1L;
         long itemId = 1L;
         User user = new User(1L, "User", "user@mail.ru");
@@ -234,6 +235,7 @@ class ItemServiceImplTest {
         assertThat(response.getNextBooking()).isEqualTo(nextBooking);
         assertThat(response.getName()).isEqualTo("Item");
     }
+
     @Test
     void getById_whenUserIsNotOwnerAndItemExistAndHasNoComments_thenReturnNotFullDtoResponse() {
         long userId = 1L;
@@ -257,7 +259,7 @@ class ItemServiceImplTest {
 
 
     @Test
-    void getById_whenItemNotExist_thenThrowModelNotFound(){
+    void getById_whenItemNotExist_thenThrowModelNotFound() {
         long userId = 1L;
         long itemId = 1L;
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
@@ -297,7 +299,7 @@ class ItemServiceImplTest {
         when(itemRepository.findById(2L)).thenReturn(Optional.of(item2));
         when(itemRepository.findById(3L)).thenReturn(Optional.of(item3));
         when(commentRepository.findByItemId(anyLong())).thenReturn(Collections.emptyList());
-        when(itemRepository.findAllByOwnerIdOrderById(PageRequest.of(0,10,
+        when(itemRepository.findAllByOwnerIdOrderById(PageRequest.of(0, 10,
                 Sort.by(Sort.Direction.ASC, "id")), userId)).thenReturn(items);
 
         List<ItemDtoResponse> responses = itemService.getByUserId(userId, 0, 10);
@@ -309,7 +311,7 @@ class ItemServiceImplTest {
     void getByUserId_whenUserHasNoItems_thenReturnEmptyList() {
         long userId = 1L;
         User user = new User(2L, "User", "user@mail.ru");
-        when(itemRepository.findAllByOwnerIdOrderById(PageRequest.of(0,10,
+        when(itemRepository.findAllByOwnerIdOrderById(PageRequest.of(0, 10,
                 Sort.by(Sort.Direction.ASC, "id")), userId)).thenReturn(Collections.emptyList());
 
         List<ItemDtoResponse> responses = itemService.getByUserId(userId, 0, 10);
@@ -323,10 +325,12 @@ class ItemServiceImplTest {
         int from = 0;
         int size = 10;
 
-        List<ItemDto> items = itemService.search(query, from, size);;
+        List<ItemDto> items = itemService.search(query, from, size);
+        ;
 
         assertThat(items.isEmpty()).isTrue();
     }
+
     @Test
     void search_whenQueryIsNotBlank_thenReturnListOfItemsSatisfyingQuery() {
         String query = "item";
@@ -345,12 +349,13 @@ class ItemServiceImplTest {
                 .build();
         List<Item> items = List.of(item, item2);
 
-        when(itemRepository.search(PageRequest.of(from/size,size), query)).thenReturn(items);
+        when(itemRepository.search(PageRequest.of(from / size, size), query)).thenReturn(items);
 
         List<ItemDto> itemsDto = itemService.search(query, from, size);
 
         assertThat(itemsDto.size()).isEqualTo(2);
     }
+
     @Test
     void search_whenQueryIsNotBlankAndNoSatisfyingItemsFound_thenReturnEmptyList() {
         String query = "item";
@@ -358,7 +363,7 @@ class ItemServiceImplTest {
         int size = 10;
 
 
-        when(itemRepository.search(PageRequest.of(from/size,size), query)).thenReturn(Collections.emptyList());
+        when(itemRepository.search(PageRequest.of(from / size, size), query)).thenReturn(Collections.emptyList());
 
         List<ItemDto> itemsDto = itemService.search(query, from, size);
 
@@ -374,7 +379,7 @@ class ItemServiceImplTest {
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(()->itemService.saveComment(itemId, userId, commentRequest))
+        assertThatThrownBy(() -> itemService.saveComment(itemId, userId, commentRequest))
                 .isInstanceOf(ModelNotFoundException.class)
                 .hasMessage("Предмет с id - 1 не найден!");
     }
@@ -393,7 +398,7 @@ class ItemServiceImplTest {
                 .build();
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        assertThatThrownBy(()->itemService.saveComment(itemId, userId, commentRequest))
+        assertThatThrownBy(() -> itemService.saveComment(itemId, userId, commentRequest))
                 .isInstanceOf(ModelNotFoundException.class)
                 .hasMessage("Пользователь с id - 1 не найден!");
     }
@@ -415,7 +420,7 @@ class ItemServiceImplTest {
         when(bookingRepository.findTopByItemIdAndBookerIdAndStatusAndEndIsBefore(eq(itemId), eq(userId),
                 eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
                 .thenReturn(Optional.empty());
-        assertThatThrownBy(()->itemService.saveComment(itemId, userId, commentRequest))
+        assertThatThrownBy(() -> itemService.saveComment(itemId, userId, commentRequest))
                 .isInstanceOf(InvalidBookingException.class)
                 .hasMessage("Пользователь с id - 1 предмет с id - 1 ранее не бронировал!");
     }
@@ -447,7 +452,7 @@ class ItemServiceImplTest {
                 .thenReturn(Optional.of(new Booking()));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
-        CommentDto savedComment = itemService.saveComment(itemId,userId, commentRequest);
+        CommentDto savedComment = itemService.saveComment(itemId, userId, commentRequest);
 
         assertThat(savedComment.getAuthorName()).isEqualTo("Commenter");
     }

@@ -24,7 +24,7 @@ class ItemRepositoryTest {
     private User user;
 
     @BeforeEach
-    void createUser(){
+    void createUser() {
         user = new User();
         user.setName("user");
         user.setEmail("user@email.ru");
@@ -36,7 +36,7 @@ class ItemRepositoryTest {
         assertNotNull(em);
     }
 
-    private Item makeItem(int num){
+    private Item makeItem(int num) {
         return Item.builder()
                 .owner(user)
                 .name("Item" + num)
@@ -46,7 +46,7 @@ class ItemRepositoryTest {
     }
 
     @Test
-    void save_whenItemIsValid_thenReturnUserWithGeneratedId(){
+    void save_whenItemIsValid_thenReturnUserWithGeneratedId() {
         Item item = makeItem(1);
 
         Item savedItem = itemRepository.save(item);
@@ -55,7 +55,7 @@ class ItemRepositoryTest {
     }
 
     @Test
-    void save_whenUserExists_thenInsteadUpdateUser(){
+    void save_whenUserExists_thenInsteadUpdateUser() {
         Item item = makeItem(1);
 
         Item savedItem = itemRepository.save(item);
@@ -83,7 +83,7 @@ class ItemRepositoryTest {
         itemRepository.save(item);
         itemRepository.save(item3);
 
-        List<Item> items = itemRepository.findAllByOwnerIdOrderById(PageRequest.of(0,10), user.getId());
+        List<Item> items = itemRepository.findAllByOwnerIdOrderById(PageRequest.of(0, 10), user.getId());
 
         assertThat(items.size()).isEqualTo(3);
         assertThat(items.get(0).getName()).isEqualTo("Item2");
@@ -93,7 +93,7 @@ class ItemRepositoryTest {
 
     @Test
     void findAllByOwnerIdOrderById_whenOwnerHasNoItems_thenReturnEmptyList() {
-        List<Item> items = itemRepository.findAllByOwnerIdOrderById(PageRequest.of(0,10), user.getId());
+        List<Item> items = itemRepository.findAllByOwnerIdOrderById(PageRequest.of(0, 10), user.getId());
 
         assertThat(items.isEmpty()).isTrue();
     }
@@ -105,9 +105,9 @@ class ItemRepositoryTest {
         itemRepository.save(item);
         itemRepository.save(item2);
 
-        List<Item> firstQueryList = itemRepository.search(PageRequest.of(0,10), "rIpTi");
-        List<Item> secondQueryList = itemRepository.search(PageRequest.of(0,10), "iOn2");
-        List<Item> thirdQueryList = itemRepository.search(PageRequest.of(0,10), "definitely not match");
+        List<Item> firstQueryList = itemRepository.search(PageRequest.of(0, 10), "rIpTi");
+        List<Item> secondQueryList = itemRepository.search(PageRequest.of(0, 10), "iOn2");
+        List<Item> thirdQueryList = itemRepository.search(PageRequest.of(0, 10), "definitely not match");
 
         assertThat(firstQueryList.size()).isEqualTo(2);
         assertThat(secondQueryList.size()).isEqualTo(1);

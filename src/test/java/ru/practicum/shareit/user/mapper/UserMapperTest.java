@@ -7,16 +7,15 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserMapperTest {
 
-    private User makeUser(long id){
+    private User makeUser(long id) {
         return User.builder().id(id).name("user" + id).email("user" + id + "@yandex.ru").build();
     }
-    private UserDto makeDto(long id){
+
+    private UserDto makeDto(long id) {
         return UserDto.builder().id(id).name("user" + id).email("user" + id + "@yandex.ru").build();
     }
 

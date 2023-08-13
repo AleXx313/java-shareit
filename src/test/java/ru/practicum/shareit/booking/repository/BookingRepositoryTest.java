@@ -177,7 +177,7 @@ class BookingRepositoryTest {
         bookingRepository.save(makeBooking(start, end, BookingStatus.APPROVED));
         bookingRepository.save(makeBooking(start.plusHours(1), end.plusHours(1), BookingStatus.APPROVED));
 
-        List<Booking> result = bookingRepository. findAllByBookerIdAndStatus(
+        List<Booking> result = bookingRepository.findAllByBookerIdAndStatus(
                 pageRequest,
                 bookerId,
                 BookingStatus.WAITING);

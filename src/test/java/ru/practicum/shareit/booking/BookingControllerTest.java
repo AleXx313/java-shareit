@@ -13,7 +13,6 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.ErrorResponse;
 import ru.practicum.shareit.item.dto.ItemDtoShort;
 import ru.practicum.shareit.user.dto.UserDtoShort;
 
@@ -35,13 +34,14 @@ class BookingControllerTest {
     @MockBean
     private BookingService bookingService;
 
-    private BookingRequestDto makeRequestDto(){
+    private BookingRequestDto makeRequestDto() {
         BookingRequestDto requestDto = new BookingRequestDto();
         requestDto.setStart(LocalDateTime.now().plusHours(1));
         requestDto.setEnd(LocalDateTime.now().plusHours(3));
         requestDto.setItemId(1L);
         return requestDto;
     }
+
     @SneakyThrows
     @Test
     void save_whenDtoIsValid_thenStatusIsOk() {
@@ -91,6 +91,7 @@ class BookingControllerTest {
                         .param("approved", "true"))
                 .andExpect(status().isOk());
     }
+
     @SneakyThrows
     @Test
     void updateStatus_whenNoParamSet_thenStatusIsInternal() {
@@ -98,6 +99,7 @@ class BookingControllerTest {
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isInternalServerError());
     }
+
     @SneakyThrows
     @Test
     void findById_thenStatusIsOk() {
@@ -113,7 +115,7 @@ class BookingControllerTest {
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk());
         verify(bookingService, times(1))
-                .findByBooker(1L, BookingState.ALL, 0,10);
+                .findByBooker(1L, BookingState.ALL, 0, 10);
     }
 
     @SneakyThrows
@@ -126,8 +128,9 @@ class BookingControllerTest {
                         .param("size", "1"))
                 .andExpect(status().isOk());
         verify(bookingService, times(1))
-                .findByBooker(1L, BookingState.CURRENT, 1,1);
+                .findByBooker(1L, BookingState.CURRENT, 1, 1);
     }
+
     @SneakyThrows
     @Test
     void findByBooker_whenStateIsUnknown_thenStatusIsBadRequest() {
@@ -145,6 +148,7 @@ class BookingControllerTest {
 
         assertThat(result.contains("Unknown state: abrakadabra")).isTrue();
     }
+
     @SneakyThrows
     @Test
     void findByOwner_whenParamsSet_thenStatusIsOkAndParamInvokedIsAsSet() {
@@ -155,9 +159,10 @@ class BookingControllerTest {
                         .param("size", "1"))
                 .andExpect(status().isOk());
         verify(bookingService, times(1))
-                .findByOwner(1L, BookingState.CURRENT, 1,1);
+                .findByOwner(1L, BookingState.CURRENT, 1, 1);
 
     }
+
     @SneakyThrows
     @Test
     void findByOwner_whenNoParams_thenStatusIsOkAndParamInvokedIsDefault() {
@@ -165,9 +170,10 @@ class BookingControllerTest {
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk());
         verify(bookingService, times(1))
-                .findByOwner(1L, BookingState.ALL, 0,10);
+                .findByOwner(1L, BookingState.ALL, 0, 10);
 
     }
+
     @SneakyThrows
     @Test
     void findByOwner_whenStateIsUnknown_thenStatusIsBadRequest() {

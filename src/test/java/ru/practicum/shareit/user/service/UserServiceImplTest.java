@@ -2,8 +2,6 @@ package ru.practicum.shareit.user.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,10 +25,11 @@ class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-    private User makeUser(long id){
+    private User makeUser(long id) {
         return User.builder().id(id).name("user" + id).email("user" + id + "@yandex.ru").build();
     }
-    private UserDto makeDto(long id){
+
+    private UserDto makeDto(long id) {
         return UserDto.builder().id(id).name("user" + id).email("user" + id + "@yandex.ru").build();
     }
 
@@ -59,15 +58,16 @@ class UserServiceImplTest {
         verify(userRepository).save(any(User.class));
         assertThat(actualUserDto.getEmail()).isEqualTo("yuoyouiou@mail.ru");
     }
+
     @Test
-    void update_whenUserNotExist_thenThrowModelNotFoundException(){
+    void update_whenUserNotExist_thenThrowModelNotFoundException() {
         UserDto newUserDto = makeDto(1L);
         long id = 1L;
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
 
-        assertThatThrownBy(()-> userService.update(id, newUserDto)).hasMessage(
+        assertThatThrownBy(() -> userService.update(id, newUserDto)).hasMessage(
                 String.format("Пользователь с id - %d не найден!", id));
 
         verify(userRepository, times(1)).findById(id);
@@ -87,6 +87,7 @@ class UserServiceImplTest {
         assertThat(userDto.getName()).isEqualTo("user1");
 
     }
+
     @Test
     void getById_whenUserNotExist_thenThrowModelNotFoundException() {
         long id = 1L;

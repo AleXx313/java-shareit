@@ -14,9 +14,10 @@ class ItemJsonDtoTest {
 
     @Autowired
     private JacksonTester<ItemDto> jsonItemDto;
+
     @SneakyThrows
     @Test
-    void testItemDto(){
+    void testItemDto() {
         ItemDto itemDto = ItemDto.builder().id(1L)
                 .name("item")
                 .description("item")

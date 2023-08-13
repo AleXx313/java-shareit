@@ -44,15 +44,16 @@ class BookingServiceImplTest {
     private ArgumentCaptor<Booking> bookingArgumentCaptor;
 
 
-    private BookingRequestDto makeBookingRequestDto(long itemId){
+    private BookingRequestDto makeBookingRequestDto(long itemId) {
         BookingRequestDto requestDto = new BookingRequestDto();
         requestDto.setStart(LocalDateTime.now().plusHours(1));
         requestDto.setEnd(LocalDateTime.now().plusHours(3));
         requestDto.setItemId(itemId);
         return requestDto;
     }
+
     @Test
-    void save_whenUserNotFoundInDataBase_thenThrowModelNotFound(){
+    void save_whenUserNotFoundInDataBase_thenThrowModelNotFound() {
         long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
@@ -60,8 +61,9 @@ class BookingServiceImplTest {
                 .isInstanceOf(ModelNotFoundException.class)
                 .hasMessage("Пользователь с id - 1 не найден!");
     }
+
     @Test
-    void save_whenItemNotFoundInDataBase_thenThrowModelNotFound(){
+    void save_whenItemNotFoundInDataBase_thenThrowModelNotFound() {
         long userId = 1L;
         User booker = new User(1L, "Booker", "booker@mail.ru");
 
@@ -75,7 +77,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void save_whenItemIdEqualsBookerId_thenThrowModelNotFound(){
+    void save_whenItemIdEqualsBookerId_thenThrowModelNotFound() {
         long userId = 1L;
         User booker = new User(1L, "Booker", "booker@mail.ru");
         User owner = new User(2L, "Booker", "booker@mail.ru");
@@ -91,7 +93,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void save_whenItemIsNotAvailable_thenThrowInvalidBooking(){
+    void save_whenItemIsNotAvailable_thenThrowInvalidBooking() {
         long userId = 1L;
         User booker = new User(1L, "Booker", "booker@mail.ru");
         User owner = new User(2L, "Booker", "booker@mail.ru");
@@ -107,7 +109,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void save_whenActionIsValid_thenInvokeSaveMethodAndReturnDto(){
+    void save_whenActionIsValid_thenInvokeSaveMethodAndReturnDto() {
         long userId = 1L;
         User booker = new User(1L, "Booker", "booker@mail.ru");
         User owner = new User(2L, "Booker", "booker@mail.ru");
@@ -132,18 +134,19 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void update_whenBookingNotFound_thenThrowModelNotFound(){
+    void update_whenBookingNotFound_thenThrowModelNotFound() {
         long userId = 1L;
         long bookId = 1L;
 
         when(bookingRepository.findById(bookId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(()->bookingService.update(bookId,userId,true))
+        assertThatThrownBy(() -> bookingService.update(bookId, userId, true))
                 .isInstanceOf(ModelNotFoundException.class)
                 .hasMessage("Бронирование с id - 1 не найдено!");
     }
+
     @Test
-    void update_whenUserNotOwner_thenThrowModelNotFound(){
+    void update_whenUserNotOwner_thenThrowModelNotFound() {
         long userId = 1L;
         long bookId = 1L;
         User booker = new User(1L, "Booker", "booker@mail.ru");
@@ -160,12 +163,13 @@ class BookingServiceImplTest {
                 .build();
         when(bookingRepository.findById(bookId)).thenReturn(Optional.of(booking));
 
-        assertThatThrownBy(()->bookingService.update(bookId,userId,true))
+        assertThatThrownBy(() -> bookingService.update(bookId, userId, true))
                 .isInstanceOf(ModelNotFoundException.class)
                 .hasMessage("Статус бронирования может менять только владелец вещи!");
     }
+
     @Test
-    void update_whenBookingStatusIsApproved_thenThrowInvalidBooking(){
+    void update_whenBookingStatusIsApproved_thenThrowInvalidBooking() {
         long userId = 1L;
         long bookId = 1L;
         User booker = new User(1L, "Booker", "booker@mail.ru");
@@ -182,13 +186,13 @@ class BookingServiceImplTest {
                 .build();
         when(bookingRepository.findById(bookId)).thenReturn(Optional.of(booking));
 
-        assertThatThrownBy(()->bookingService.update(bookId,owner.getId(),true))
+        assertThatThrownBy(() -> bookingService.update(bookId, owner.getId(), true))
                 .isInstanceOf(InvalidBookingException.class)
                 .hasMessage("Бронирование с id 1 уже подтверждено!");
     }
 
     @Test
-    void update_whenTrue_thenSendToSaveApprovedBooking(){
+    void update_whenTrue_thenSendToSaveApprovedBooking() {
         long ownerId = 2L;
         long bookId = 1L;
         User booker = new User(1L, "Booker", "booker@mail.ru");
@@ -214,7 +218,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void update_whenFalse_thenSendToSaveRejectedBooking(){
+    void update_whenFalse_thenSendToSaveRejectedBooking() {
         long ownerId = 2L;
         long bookId = 1L;
         User booker = new User(1L, "Booker", "booker@mail.ru");
@@ -262,6 +266,7 @@ class BookingServiceImplTest {
                 .hasMessage("Сведения о бронировании может получать только пользователь, " +
                         "оставивший бронь или владелец вещи!");
     }
+
     @Test
     void findById_whenBookingNotFound_thenThrowModelNotFound() {
         long userId = 1L;
@@ -314,7 +319,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User booker = new User(userId, "Booker", "booker@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(booker));
 
@@ -330,7 +335,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User booker = new User(userId, "Booker", "booker@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(booker));
 
@@ -349,7 +354,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User booker = new User(userId, "Booker", "booker@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(booker));
 
@@ -360,13 +365,14 @@ class BookingServiceImplTest {
                 eq(userId),
                 any());
     }
+
     @Test
     void findByBooker_whenStateFuture_thenInvokeFindAllByBookerIdAndStartIsAfter() {
         long userId = 1L;
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User booker = new User(userId, "Booker", "booker@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(booker));
 
@@ -384,7 +390,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User booker = new User(userId, "Booker", "booker@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(booker));
 
@@ -402,7 +408,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User booker = new User(userId, "Booker", "booker@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(booker));
 
@@ -431,7 +437,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User owner = new User(userId, "Owner", "owner@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
 
@@ -448,7 +454,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User owner = new User(userId, "Owner", "owner@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
 
@@ -460,13 +466,14 @@ class BookingServiceImplTest {
                 any(),
                 any());
     }
+
     @Test
     void findByOwner_whenStatePast_thenInvokeFindAllByItemOwnerIdAndEndIsBefore() {
         long userId = 1L;
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User owner = new User(userId, "Owner", "owner@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
 
@@ -484,7 +491,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User owner = new User(userId, "Owner", "owner@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
 
@@ -495,13 +502,14 @@ class BookingServiceImplTest {
                 eq(userId),
                 any());
     }
+
     @Test
     void findByOwner_whenStateRejected_thenInvokeFindAllByItemOwnerIdAndStatus() {
         long userId = 1L;
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User owner = new User(userId, "Owner", "owner@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
 
@@ -519,7 +527,7 @@ class BookingServiceImplTest {
         int from = 1;
         int size = 10;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest request = PageRequest.of(from/size, size, sort);
+        PageRequest request = PageRequest.of(from / size, size, sort);
         User owner = new User(userId, "Owner", "owner@mail.ru");
         when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
 
@@ -530,9 +538,6 @@ class BookingServiceImplTest {
                 userId,
                 BookingStatus.WAITING);
     }
-
-
-
 
 
 }

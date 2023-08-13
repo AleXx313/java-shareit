@@ -32,6 +32,7 @@ class ItemRequestControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
     @SneakyThrows
     @Test
     void findAllByRequester() {
@@ -39,21 +40,23 @@ class ItemRequestControllerTest {
         when(requestService.findAllByRequester(1L)).thenReturn(List.of());
 
         mockMvc.perform(get("/requests")
-                .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk());
 
     }
+
     @SneakyThrows
     @Test
     void findAll() {
         when(requestService.findAll(
-                PageRequest.of(0,10, Sort.by(Sort.Direction.DESC, "created")),
+                PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "created")),
                 1L)).thenReturn(List.of());
 
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk());
     }
+
     @SneakyThrows
     @Test
     void findById() {
@@ -68,6 +71,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk());
 
     }
+
     @SneakyThrows
     @Test
     void save() {

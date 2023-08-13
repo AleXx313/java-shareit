@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -179,7 +178,7 @@ class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    void search_whenQueryIsBlank_thenReturnEmptyList(){
+    void search_whenQueryIsBlank_thenReturnEmptyList() {
 
         when(itemService.search("", 0, 10)).thenReturn(Collections.emptyList());
 
@@ -189,9 +188,10 @@ class ItemControllerTest {
                 .andReturn().getResponse().getContentAsString();
         assertThat(result).isEqualTo(objectMapper.writeValueAsString(Collections.emptyList()));
     }
+
     @SneakyThrows
     @Test
-    void search_whenQueryMatched_thenReturnListOfIteDtos(){
+    void search_whenQueryMatched_thenReturnListOfIteDtos() {
         ItemDto dto = ItemDto.builder()
                 .id(1L)
                 .name("item")
@@ -199,7 +199,7 @@ class ItemControllerTest {
                 .available(true)
                 .build();
 
-        when(itemService.search("item", 1,5)).thenReturn(List.of(dto));
+        when(itemService.search("item", 1, 5)).thenReturn(List.of(dto));
 
         String result = mockMvc.perform(get("/items/search")
                         .param("text", "item")
@@ -212,7 +212,7 @@ class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    void search_whenParamsWrong_thenStatusIsInternalServerError(){
+    void search_whenParamsWrong_thenStatusIsInternalServerError() {
 
         mockMvc.perform(get("/items/search")
                         .param("text", "item")
@@ -220,9 +220,10 @@ class ItemControllerTest {
                         .param("size", "-20"))
                 .andExpect(status().isInternalServerError());
     }
+
     @SneakyThrows
     @Test
-    void saveComment_whenModelNotFoundExceptionThrown_thenStatusIsNotFound(){
+    void saveComment_whenModelNotFoundExceptionThrown_thenStatusIsNotFound() {
         CommentRequest request = new CommentRequest();
         request.setText("description");
         when(itemService.saveComment(1L, 1L, request))
@@ -240,7 +241,7 @@ class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    void saveComment_whenInvalidBookingThrown_thenStatusIsBadRequest(){
+    void saveComment_whenInvalidBookingThrown_thenStatusIsBadRequest() {
         CommentRequest request = new CommentRequest();
         request.setText("description");
         when(itemService.saveComment(1L, 1L, request))
@@ -255,9 +256,10 @@ class ItemControllerTest {
                 .andExpect(status().isBadRequest());
 
     }
+
     @SneakyThrows
     @Test
-    void saveComment_whenReturnedCommentDto_thenStatusIsOk(){
+    void saveComment_whenReturnedCommentDto_thenStatusIsOk() {
         CommentRequest request = new CommentRequest();
         request.setText("description");
         CommentDto dto = CommentDto.builder()

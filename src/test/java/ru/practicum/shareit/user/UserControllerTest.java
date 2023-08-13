@@ -16,14 +16,12 @@ import ru.practicum.shareit.user.service.UserService;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
@@ -40,6 +38,7 @@ class UserControllerTest {
     private UserDto makeDto(long id) {
         return UserDto.builder().id(id).name("user" + id).email("user" + id + "@yandex.ru").build();
     }
+
     @SneakyThrows
     @Test
     void save_whenUserDtoIsValid_thenSave() {
@@ -96,6 +95,7 @@ class UserControllerTest {
         verify(userService, times(1)).update(userId, userDto);
 
     }
+
     @SneakyThrows
     @Test
     void getById_whenSavedUserExist_thenGetDtoWithStatusOk() {
@@ -104,10 +104,10 @@ class UserControllerTest {
         when(userService.getById(userId)).thenReturn(userDto);
 
         String result = mockMvc.perform(get("/users/{userId}", userId))
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString();
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         assertThat(result).isEqualTo(objectMapper.writeValueAsString(userDto));
         verify(userService, times(1)).getById(userId);
@@ -132,15 +132,16 @@ class UserControllerTest {
 
         when(userService.getAllUsers()).thenReturn(users);
 
-         String result = mockMvc.perform(get("/users"))
+        String result = mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-         List<UserDto> returnedUsers = objectMapper.readValue(result, new TypeReference<>() { });
+        List<UserDto> returnedUsers = objectMapper.readValue(result, new TypeReference<>() {
+        });
 
-         assertThat(returnedUsers).isEqualTo(users);
-         verify(userService, times(1)).getAllUsers();
+        assertThat(returnedUsers).isEqualTo(users);
+        verify(userService, times(1)).getAllUsers();
     }
 
     @SneakyThrows
