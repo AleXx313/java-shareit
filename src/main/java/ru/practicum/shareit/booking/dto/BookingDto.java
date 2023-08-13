@@ -6,8 +6,8 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.dto.ItemDtoShort;
 import ru.practicum.shareit.user.dto.UserDtoShort;
 
-
 import java.time.LocalDateTime;
+
 @Data
 @Builder
 public class BookingDto {

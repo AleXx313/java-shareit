@@ -62,10 +62,12 @@ class ItemServiceImplTest {
         ItemDto itemDto = ItemDto.builder().id(1L).name("Item").description("some item").available(true).build();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> itemService.save(userId, itemDto)).
-                isInstanceOf(ModelNotFoundException.class).hasMessage("Пользователь с id - 1 не найден!");
+        assertThatThrownBy(() -> itemService.save(userId, itemDto))
+                .isInstanceOf(ModelNotFoundException.class)
+                .hasMessage("Пользователь с id - 1 не найден!");
 
-        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1))
+                .findById(userId);
         verifyNoInteractions(itemRepository);
 
     }
@@ -153,8 +155,9 @@ class ItemServiceImplTest {
         ItemDto itemDto = ItemDto.builder().id(1L).name("Item").build();
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> itemService.update(userId, itemId, itemDto)).
-                isInstanceOf(ModelNotFoundException.class).hasMessage("Предмет - Item с id - 1 отсутствует!");
+        assertThatThrownBy(() -> itemService.update(userId, itemId, itemDto))
+                .isInstanceOf(ModelNotFoundException.class)
+                .hasMessage("Предмет - Item с id - 1 отсутствует!");
 
         verify(itemRepository, times(1)).findById(userId);
         verifyNoMoreInteractions(itemRepository);
@@ -264,12 +267,12 @@ class ItemServiceImplTest {
         long itemId = 1L;
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> itemService.getById(userId, itemId)).
-                isInstanceOf(ModelNotFoundException.class).hasMessage("Предмет с id - 1 отсутствует!");
+        assertThatThrownBy(() -> itemService.getById(userId, itemId))
+                .isInstanceOf(ModelNotFoundException.class)
+                .hasMessage("Предмет с id - 1 отсутствует!");
 
         verify(itemRepository, times(1)).findById(userId);
         verifyNoMoreInteractions(itemRepository);
-
     }
 
     @Test
