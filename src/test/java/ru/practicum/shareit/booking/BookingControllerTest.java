@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -42,9 +41,8 @@ class BookingControllerTest {
         return requestDto;
     }
 
-    @SneakyThrows
     @Test
-    void save_whenDtoIsValid_thenStatusIsOk() {
+    void save_whenDtoIsValid_thenStatusIsOk() throws Exception {
         UserDtoShort booker = UserDtoShort.builder().id(1L).name("Booker").build();
         ItemDtoShort item = ItemDtoShort.builder().id(1L).name("hammer").build();
         BookingRequestDto requestDto = makeRequestDto();
@@ -68,9 +66,8 @@ class BookingControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void save_whenDtoIsNotValid_thenStatusIsBadRequest() {
+    void save_whenDtoIsNotValid_thenStatusIsBadRequest() throws Exception {
         BookingRequestDto requestDto = makeRequestDto();
         requestDto.setStart(LocalDateTime.now().minusHours(2));
 
@@ -83,34 +80,30 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @SneakyThrows
     @Test
-    void updateStatus_whenParamSet_thenStatusIsOk() {
+    void updateStatus_whenParamSet_thenStatusIsOk() throws Exception {
         mockMvc.perform(patch("/bookings/{id}", 1)
                         .header("X-Sharer-User-Id", 1)
                         .param("approved", "true"))
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void updateStatus_whenNoParamSet_thenStatusIsInternal() {
+    void updateStatus_whenNoParamSet_thenStatusIsInternal() throws Exception {
         mockMvc.perform(patch("/bookings/{id}", 1)
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isInternalServerError());
     }
 
-    @SneakyThrows
     @Test
-    void findById_thenStatusIsOk() {
+    void findById_thenStatusIsOk() throws Exception {
         mockMvc.perform(get("/bookings/{id}", 1)
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void findByBooker_whenNoParams_thenStatusIsOkAndParamInvokedIsDefault() {
+    void findByBooker_whenNoParams_thenStatusIsOkAndParamInvokedIsDefault() throws Exception {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk());
@@ -118,9 +111,8 @@ class BookingControllerTest {
                 .findByBooker(1L, BookingState.ALL, 0, 10);
     }
 
-    @SneakyThrows
     @Test
-    void findByBooker_whenParamsSet_thenStatusIsOkAndParamInvokedIsAsSet() {
+    void findByBooker_whenParamsSet_thenStatusIsOkAndParamInvokedIsAsSet() throws Exception {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", 1)
                         .param("state", "CURRENT")
@@ -131,9 +123,8 @@ class BookingControllerTest {
                 .findByBooker(1L, BookingState.CURRENT, 1, 1);
     }
 
-    @SneakyThrows
     @Test
-    void findByBooker_whenStateIsUnknown_thenStatusIsBadRequest() {
+    void findByBooker_whenStateIsUnknown_thenStatusIsBadRequest() throws Exception {
         String errorMessage = "Unknown state: abrakadabra";
 
         String result = mockMvc.perform(get("/bookings")
@@ -149,9 +140,8 @@ class BookingControllerTest {
         assertThat(result.contains("Unknown state: abrakadabra")).isTrue();
     }
 
-    @SneakyThrows
     @Test
-    void findByOwner_whenParamsSet_thenStatusIsOkAndParamInvokedIsAsSet() {
+    void findByOwner_whenParamsSet_thenStatusIsOkAndParamInvokedIsAsSet() throws Exception {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", 1)
                         .param("state", "CURRENT")
@@ -163,9 +153,8 @@ class BookingControllerTest {
 
     }
 
-    @SneakyThrows
     @Test
-    void findByOwner_whenNoParams_thenStatusIsOkAndParamInvokedIsDefault() {
+    void findByOwner_whenNoParams_thenStatusIsOkAndParamInvokedIsDefault() throws Exception {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk());
@@ -174,9 +163,8 @@ class BookingControllerTest {
 
     }
 
-    @SneakyThrows
     @Test
-    void findByOwner_whenStateIsUnknown_thenStatusIsBadRequest() {
+    void findByOwner_whenStateIsUnknown_thenStatusIsBadRequest() throws Exception {
         String errorMessage = "Unknown state: abrakadabra";
 
         String result = mockMvc.perform(get("/bookings/owner")

@@ -19,6 +19,12 @@ public class ItemRequestMapper {
                 .build();
     }
 
+    public static ItemRequest dtoToRequest(ItemRequestDto itemRequestDto) {
+        return ItemRequest.builder()
+                .description(itemRequestDto.getDescription())
+                .build();
+    }
+
     public static List<ItemRequestDto> listToDtosList(List<ItemRequest> requests) {
         return requests.stream().map(ItemRequestMapper::requestToDto).collect(Collectors.toList());
     }

@@ -5,9 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDtoForRequests;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -23,6 +22,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -83,17 +83,16 @@ class RequestServiceImplTest {
                 LocalDateTime.of(2023, 8, 11, 10, 30, 15),
                 user);
         List<ItemRequest> requests = List.of(request);
-        Page<ItemRequest> pages = new PageImpl<>(requests);
         ItemDtoForRequests item = new ItemDtoForRequests(
                 1L,
                 "Hammer",
                 "Knock knock",
                 true,
                 1L);
-        when(requestRepository.findAllByRequesterIdNot(PageRequest.of(0, 10), 2L)).thenReturn(pages);
+        when(requestRepository.findAllByRequesterIdNot(PageRequest.of(0, 10,
+                Sort.by(Sort.Direction.DESC, "created")), 2L)).thenReturn(requests);
         when(itemRepository.findByRequestId(1L)).thenReturn(List.of(item));
-
-        List<ItemRequestDto> result = requestService.findAll(PageRequest.of(0, 10), 2L);
+        List<ItemRequestDto> result = requestService.findAll(0, 10, 2L);
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).getItems().get(0)).isEqualTo(item);
@@ -148,13 +147,13 @@ class RequestServiceImplTest {
     @Test
     void save_ifUserNotFound_thenThrowModelNotFoundException() {
         long userId = 1L;
-        ItemRequest request = ItemRequest.builder()
+        ItemRequestDto requestDto = ItemRequestDto.builder()
                 .id(1L)
                 .description("need hammer")
                 .build();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> requestService.save(1L, request))
+        assertThatThrownBy(() -> requestService.save(1L, requestDto))
                 .isInstanceOf(ModelNotFoundException.class)
                 .hasMessage("Пользователь с id 1 отсутствует");
     }
@@ -163,14 +162,18 @@ class RequestServiceImplTest {
     void save_ifUserFound_thenSaveRequest() {
         long userId = 1L;
         User user = new User(userId, "user", "user@yandex.ru");
+        ItemRequestDto requestDto = ItemRequestDto.builder()
+                .description("need hammer")
+                .build();
         ItemRequest request = ItemRequest.builder()
                 .id(1L)
                 .description("need hammer")
+                .created(LocalDateTime.now())
                 .build();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(requestRepository.save(request)).thenReturn(request);
+        when(requestRepository.save(any())).thenReturn(request);
 
-        ItemRequestDto result = requestService.save(userId, request);
+        ItemRequestDto result = requestService.save(userId, requestDto);
 
         assertThat(result).hasOnlyFields("id", "description", "created", "items");
     }

@@ -1,13 +1,10 @@
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -33,9 +30,8 @@ class ItemRequestControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @SneakyThrows
     @Test
-    void findAllByRequester() {
+    void findAllByRequester() throws Exception {
 
         when(requestService.findAllByRequester(1L)).thenReturn(List.of());
 
@@ -45,21 +41,17 @@ class ItemRequestControllerTest {
 
     }
 
-    @SneakyThrows
     @Test
-    void findAll() {
-        when(requestService.findAll(
-                PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "created")),
-                1L)).thenReturn(List.of());
+    void findAll() throws Exception {
+        when(requestService.findAll(0, 10, 1L)).thenReturn(List.of());
 
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void findById() {
+    void findById() throws Exception {
         ItemRequestDto dto = ItemRequestDto.builder()
                 .id(1L)
                 .description("need")
@@ -72,9 +64,8 @@ class ItemRequestControllerTest {
 
     }
 
-    @SneakyThrows
     @Test
-    void save() {
+    void save() throws Exception {
         ItemRequest request = ItemRequest.builder()
                 .description("need")
                 .build();
@@ -82,7 +73,7 @@ class ItemRequestControllerTest {
                 .id(1L)
                 .description("need")
                 .build();
-        when(requestService.save(1L, request)).thenReturn(dto);
+        when(requestService.save(1L, dto)).thenReturn(dto);
         mockMvc.perform(post("/requests")
                         .content(objectMapper.writeValueAsString(request))
                         .characterEncoding(StandardCharsets.UTF_8)

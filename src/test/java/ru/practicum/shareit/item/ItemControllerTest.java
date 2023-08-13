@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,9 +37,8 @@ class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
-    @SneakyThrows
     @Test
-    void save_whenDtoReturned_thenStatusIsOk() {
+    void save_whenDtoReturned_thenStatusIsOk() throws Exception {
         ItemDto dto = ItemDto.builder()
                 .id(1L)
                 .name("item")
@@ -58,9 +56,8 @@ class ItemControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void save_whenModelNotFoundExceptionThrown_thenStatusIsNotFound() {
+    void save_whenModelNotFoundExceptionThrown_thenStatusIsNotFound() throws Exception {
         ItemDto dto = ItemDto.builder()
                 .id(1L)
                 .name("item")
@@ -78,9 +75,8 @@ class ItemControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @SneakyThrows
     @Test
-    void update_whenReturnedDto_thenStatusIsOK() {
+    void update_whenReturnedDto_thenStatusIsOK() throws Exception {
         ItemDto dto = ItemDto.builder()
                 .id(1L)
                 .name("item")
@@ -98,9 +94,8 @@ class ItemControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void update_whenThrownModelNotFound_thenStatusIsNotFound() {
+    void update_whenThrownModelNotFound_thenStatusIsNotFound() throws Exception {
         ItemDto dto = ItemDto.builder()
                 .id(1L)
                 .name("item")
@@ -118,9 +113,8 @@ class ItemControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @SneakyThrows
     @Test
-    void update_whenThrownUserHaveNotAccess_thenStatusIsNotFound() {
+    void update_whenThrownUserHaveNotAccess_thenStatusIsNotFound() throws Exception {
         ItemDto dto = ItemDto.builder()
                 .id(1L)
                 .name("item")
@@ -138,9 +132,8 @@ class ItemControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @SneakyThrows
     @Test
-    void getById_thenReturnItemDtoResponseAndStatusOk() {
+    void getById_thenReturnItemDtoResponseAndStatusOk() throws Exception {
         ItemDtoResponse response = ItemDtoResponse.builder()
                 .name("item")
                 .description("item to save")
@@ -154,9 +147,8 @@ class ItemControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void getListByUserId_thenReturnListOfDtoResponseAndStatusIsOk() {
+    void getListByUserId_thenReturnListOfDtoResponseAndStatusIsOk() throws Exception {
         ItemDtoResponse response = ItemDtoResponse.builder()
                 .name("item")
                 .description("item to save")
@@ -176,9 +168,8 @@ class ItemControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void search_whenQueryIsBlank_thenReturnEmptyList() {
+    void search_whenQueryIsBlank_thenReturnEmptyList() throws Exception {
 
         when(itemService.search("", 0, 10)).thenReturn(Collections.emptyList());
 
@@ -189,9 +180,8 @@ class ItemControllerTest {
         assertThat(result).isEqualTo(objectMapper.writeValueAsString(Collections.emptyList()));
     }
 
-    @SneakyThrows
     @Test
-    void search_whenQueryMatched_thenReturnListOfIteDtos() {
+    void search_whenQueryMatched_thenReturnListOfIteDtos() throws Exception {
         ItemDto dto = ItemDto.builder()
                 .id(1L)
                 .name("item")
@@ -210,9 +200,8 @@ class ItemControllerTest {
         assertThat(result).isEqualTo(objectMapper.writeValueAsString(List.of(dto)));
     }
 
-    @SneakyThrows
     @Test
-    void search_whenParamsWrong_thenStatusIsInternalServerError() {
+    void search_whenParamsWrong_thenStatusIsInternalServerError() throws Exception {
 
         mockMvc.perform(get("/items/search")
                         .param("text", "item")
@@ -221,9 +210,8 @@ class ItemControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
-    @SneakyThrows
     @Test
-    void saveComment_whenModelNotFoundExceptionThrown_thenStatusIsNotFound() {
+    void saveComment_whenModelNotFoundExceptionThrown_thenStatusIsNotFound() throws Exception {
         CommentRequest request = new CommentRequest();
         request.setText("description");
         when(itemService.saveComment(1L, 1L, request))
@@ -239,9 +227,8 @@ class ItemControllerTest {
 
     }
 
-    @SneakyThrows
     @Test
-    void saveComment_whenInvalidBookingThrown_thenStatusIsBadRequest() {
+    void saveComment_whenInvalidBookingThrown_thenStatusIsBadRequest() throws Exception {
         CommentRequest request = new CommentRequest();
         request.setText("description");
         when(itemService.saveComment(1L, 1L, request))
@@ -254,12 +241,10 @@ class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-
     }
 
-    @SneakyThrows
     @Test
-    void saveComment_whenReturnedCommentDto_thenStatusIsOk() {
+    void saveComment_whenReturnedCommentDto_thenStatusIsOk() throws Exception {
         CommentRequest request = new CommentRequest();
         request.setText("description");
         CommentDto dto = CommentDto.builder()
@@ -277,6 +262,5 @@ class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-
     }
 }

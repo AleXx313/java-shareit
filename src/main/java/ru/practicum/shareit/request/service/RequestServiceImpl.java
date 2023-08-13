@@ -1,8 +1,8 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,9 +41,11 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemRequestDto> findAll(PageRequest pageRequest, Long userId) {
-        Page<ItemRequest> page = requestRepository.findAllByRequesterIdNot(pageRequest, userId);
-        List<ItemRequestDto> requests = ItemRequestMapper.listToDtosList(page.getContent());
+    public List<ItemRequestDto> findAll(int from, int size, Long userId) {
+        PageRequest pageRequest = PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "created"));
+
+        List<ItemRequest> requestList = requestRepository.findAllByRequesterIdNot(pageRequest, userId);
+        List<ItemRequestDto> requests = ItemRequestMapper.listToDtosList(requestList);
         requests.forEach(a -> a.setItems(itemRepository.findByRequestId(a.getId())));
         return requests;
     }
@@ -63,7 +65,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public ItemRequestDto save(Long userId, ItemRequest itemRequest) {
+    public ItemRequestDto save(Long userId, ItemRequestDto itemRequestDto) {
+        ItemRequest itemRequest = ItemRequestMapper.dtoToRequest(itemRequestDto);
         itemRequest.setRequester(userRepository.findById(userId).orElseThrow(
                 () -> new ModelNotFoundException(String.format("Пользователь с id %d отсутствует", userId))));
         itemRequest.setCreated(LocalDateTime.now());

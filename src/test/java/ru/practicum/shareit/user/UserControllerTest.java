@@ -2,7 +2,6 @@ package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -39,9 +38,8 @@ class UserControllerTest {
         return UserDto.builder().id(id).name("user" + id).email("user" + id + "@yandex.ru").build();
     }
 
-    @SneakyThrows
     @Test
-    void save_whenUserDtoIsValid_thenSave() {
+    void save_whenUserDtoIsValid_thenSave() throws Exception {
         UserDto userDto = makeDto(1L);
         when(userService.save(any())).thenReturn(userDto);
 
@@ -58,9 +56,8 @@ class UserControllerTest {
         assertThat(result).isEqualTo(objectMapper.writeValueAsString(userDto));
     }
 
-    @SneakyThrows
     @Test
-    void save_whenUserDtoIsNotValid_thenStatusIsBadRequest() {
+    void save_whenUserDtoIsNotValid_thenStatusIsBadRequest() throws Exception {
         long userId = 1L;
         UserDto userDto = makeDto(userId);
         userDto.setName("");
@@ -74,9 +71,8 @@ class UserControllerTest {
         verify(userService, never()).save(any());
     }
 
-    @SneakyThrows
     @Test
-    void update_whenUserDtoIsValid_thenStatusIsOk() {
+    void update_whenUserDtoIsValid_thenStatusIsOk() throws Exception {
         Long userId = 1L;
         UserDto userDto = makeDto(userId);
         when(userService.update(userId, userDto)).thenReturn(userDto);
@@ -93,12 +89,10 @@ class UserControllerTest {
 
         assertThat(result).isEqualTo(objectMapper.writeValueAsString(userDto));
         verify(userService, times(1)).update(userId, userDto);
-
     }
 
-    @SneakyThrows
     @Test
-    void getById_whenSavedUserExist_thenGetDtoWithStatusOk() {
+    void getById_whenSavedUserExist_thenGetDtoWithStatusOk() throws Exception {
         long userId = 1L;
         UserDto userDto = makeDto(userId);
         when(userService.getById(userId)).thenReturn(userDto);
@@ -113,9 +107,8 @@ class UserControllerTest {
         verify(userService, times(1)).getById(userId);
     }
 
-    @SneakyThrows
     @Test
-    void getById_whenSavedUserNotExist_thenGeExceptionWithStatusNotFound() {
+    void getById_whenSavedUserNotExist_thenGeExceptionWithStatusNotFound() throws Exception {
         long userId = 1L;
         when(userService.getById(userId)).thenThrow(new ModelNotFoundException("Пользователь не найден!"));
 
@@ -125,9 +118,8 @@ class UserControllerTest {
         verify(userService, times(1)).getById(userId);
     }
 
-    @SneakyThrows
     @Test
-    void getAll_whenSavedUserExists_thenGetListOfUsersWithStatusIsOk() {
+    void getAll_whenSavedUserExists_thenGetListOfUsersWithStatusIsOk() throws Exception {
         List<UserDto> users = List.of(makeDto(1L), makeDto(2L), makeDto(3L));
 
         when(userService.getAllUsers()).thenReturn(users);
@@ -144,14 +136,12 @@ class UserControllerTest {
         verify(userService, times(1)).getAllUsers();
     }
 
-    @SneakyThrows
     @Test
-    void deleteById() {
+    void deleteById() throws Exception {
         long id = 1L;
         mockMvc.perform(delete("/users/{id}", id))
                 .andExpect(status().isOk());
 
         verify(userService, times(1)).deleteById(id);
-
     }
 }
