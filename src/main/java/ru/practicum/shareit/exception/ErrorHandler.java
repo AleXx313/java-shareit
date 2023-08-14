@@ -16,12 +16,6 @@ public class ErrorHandler {
         return new ErrorResponse("Данные отсутствуют!", e.getMessage());
     }
 
-    @ExceptionHandler({EmailAlreadyExistException.class})
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(final RuntimeException e) {
-        return new ErrorResponse("Уникальные данные уже имеются!", e.getMessage());
-    }
-
     @ExceptionHandler({InvalidBookingException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleInvalidBookingException(final InvalidBookingException e) {

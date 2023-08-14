@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -8,11 +9,10 @@ import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
+@Validated
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -39,23 +39,25 @@ public class BookingController {
         return bookingService.findById(id, userId);
     }
 
-    //Поиск бронирований пользователя
     @GetMapping
     public List<BookingDto> findByBooker(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
                                          @RequestParam(
                                                  value = "state",
                                                  required = false,
-                                                 defaultValue = "ALL") BookingState state) {
-        return bookingService.findByBooker(userId, state);
+                                                 defaultValue = "ALL") BookingState state,
+                                         @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                         @RequestParam(required = false, defaultValue = "10") @Min(1) int size) {
+        return bookingService.findByBooker(userId, state, from, size);
     }
 
-    //Поиск бронирований вещей пользователя (если они у него есть)
     @GetMapping(path = "/owner")
     public List<BookingDto> findByOwner(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
                                         @RequestParam(
                                                 value = "state",
                                                 required = false,
-                                                defaultValue = "ALL") BookingState state) {
-        return bookingService.findByOwner(userId, state);
+                                                defaultValue = "ALL") BookingState state,
+                                        @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                        @RequestParam(required = false, defaultValue = "10") @Min(1) int size) {
+        return bookingService.findByOwner(userId, state, from, size);
     }
 }

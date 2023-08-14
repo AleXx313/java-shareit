@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.shareit.exception.EmailAlreadyExistException;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 
 import ru.practicum.shareit.user.dto.UserDto;
@@ -32,7 +31,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto save(UserDto dto) {
-        //checkEmailExistException(dto.getEmail());
         User savedUser = userRepository.save(UserMapper.dtoToUser(dto));
         log.info("Создан пользователь по имени - {} с id - {}!", savedUser.getName(), savedUser.getId());
         return UserMapper.userToDto(savedUser);
@@ -49,9 +47,6 @@ public class UserServiceImpl implements UserService {
             );
         }
         User user = userOpt.get();
-        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
-            checkEmailExistException(dto.getEmail());
-        }
 
         User updatedUser = userRepository.save(updateUserFields(user, dto));
         log.info("Обновлен пользователь по имени - {} с id - {}!", updatedUser.getName(), updatedUser.getId());
@@ -95,13 +90,6 @@ public class UserServiceImpl implements UserService {
         }
         isValid(user);
         return user;
-    }
-
-    private void checkEmailExistException(String email) {
-        if (userRepository.findAll().stream().anyMatch(a -> a.getEmail().equals(email))) //todo Переделать на поиск с условием!
-            throw new EmailAlreadyExistException(
-                    String.format("Электронная почта %s уже зарегистрирована!", email)
-            );
     }
 
     private void isValid(User user) {

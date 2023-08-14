@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -18,6 +20,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto update(Long id, Long userId, boolean approved) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ModelNotFoundException(
-                String.format("Бронирование> с id - %d не найдено!",
+                String.format("Бронирование с id - %d не найдено!",
                         id)));
 
         if (!booking.getItem().getOwner().getId().equals(userId)) {
@@ -88,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public BookingDto findById(Long id, Long userId) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ModelNotFoundException(
-                String.format("Бронирование> с id - %d не найдено!",
+                String.format("Бронирование с id - %d не найдено!",
                         id)));
         if (booking.getItem().getOwner().getId().equals(userId) || booking.getBooker().getId().equals(userId)) {
             return BookingMapper.bookingToDto(booking);
@@ -100,76 +103,101 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingDto> findByBooker(Long userId, BookingState state) {
+    public List<BookingDto> findByBooker(Long userId, BookingState state, int from, int size) {
         userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Пользователь с id %d не найден!", userId)));
+
+        PageRequest request = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"));
 
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByBookerId(
+                        request,
+                        userId);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfter(
+                        request,
+                        userId,
                         LocalDateTime.now(),
                         LocalDateTime.now());
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndEndIsBefore(
+                        request,
+                        userId,
                         LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndStartIsAfter(
+                        request,
+                        userId,
                         LocalDateTime.now());
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndStatus(
+                        request,
+                        userId,
                         BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByBookerIdAndStatus(
+                        request,
+                        userId,
                         BookingStatus.WAITING);
                 break;
             default:
-                throw new InvalidBookingException("Unknown state: " + state);
+                bookings = Collections.emptyList();
         }
         return BookingMapper.listToDtoList(bookings);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingDto> findByOwner(Long userId, BookingState state) {
+    public List<BookingDto> findByOwner(Long userId, BookingState state, int from, int size) {
         userRepository.findById(userId).orElseThrow(() -> new ModelNotFoundException(
                 String.format("Пользователь с id %d не найден!", userId)));
+        PageRequest request = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"));
 
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByItemOwnerId(request, userId);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfter(
+                        request,
+                        userId,
                         LocalDateTime.now(),
                         LocalDateTime.now());
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndEndIsBefore(
+                        request,
+                        userId,
                         LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndStartIsAfter(
+                        request,
+                        userId,
                         LocalDateTime.now());
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndStatus(
+                        request,
+                        userId,
                         BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId,
+                bookings = bookingRepository.findAllByItemOwnerIdAndStatus(
+                        request,
+                        userId,
                         BookingStatus.WAITING);
                 break;
             default:
-                throw new InvalidBookingException("Unknown state: " + state);
+                bookings = Collections.emptyList();
 
         }
         return BookingMapper.listToDtoList(bookings);
