@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
@@ -19,24 +21,24 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    public UserDto save(@RequestBody @Valid UserDto dto) {
-        return service.save(dto);
+    public ResponseEntity<UserDto> save(@RequestBody @Valid UserDto dto) {
+        return new ResponseEntity<>(service.save(dto), HttpStatus.CREATED);
     }
 
     @PatchMapping(path = "/{id}")
-    public UserDto update(@PathVariable(value = "id") Long id,
-                          @RequestBody UserDto dto) {
-        return service.update(id, dto);
+    public ResponseEntity<UserDto> update(@PathVariable(value = "id") Long id,
+                                          @RequestBody UserDto dto) {
+        return new ResponseEntity<>(service.update(id, dto), HttpStatus.OK);
     }
 
     @GetMapping(path = "/{id}")
-    public UserDto getById(@PathVariable(value = "id") Long id) {
-        return service.getById(id);
+    public ResponseEntity<UserDto> getById(@PathVariable(value = "id") Long id) {
+        return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
     }
 
     @GetMapping
-    public List<UserDto> getAll() {
-        return service.getAllUsers();
+    public ResponseEntity<List<UserDto>> getAll() {
+        return new ResponseEntity<>(service.getAllUsers(), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
