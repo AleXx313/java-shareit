@@ -19,7 +19,6 @@ import javax.validation.constraints.PositiveOrZero;
 @Validated
 public class RequestController {
 
-
     private final RequestClient requestClient;
 
     @GetMapping
