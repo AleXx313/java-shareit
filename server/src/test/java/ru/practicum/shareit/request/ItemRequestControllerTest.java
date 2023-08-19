@@ -80,6 +80,6 @@ class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 }

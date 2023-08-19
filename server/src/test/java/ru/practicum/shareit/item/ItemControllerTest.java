@@ -53,7 +53,7 @@ class ItemControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -198,16 +198,6 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertThat(result).isEqualTo(objectMapper.writeValueAsString(List.of(dto)));
-    }
-
-    @Test
-    void search_whenParamsWrong_thenStatusIsInternalServerError() throws Exception {
-
-        mockMvc.perform(get("/items/search")
-                        .param("text", "item")
-                        .param("from", "-1")
-                        .param("size", "-20"))
-                .andExpect(status().isInternalServerError());
     }
 
     @Test

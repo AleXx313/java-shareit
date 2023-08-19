@@ -7,12 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/users")
@@ -21,7 +17,7 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    public ResponseEntity<UserDto> save(@RequestBody @Valid UserDto dto) {
+    public ResponseEntity<UserDto> save(@RequestBody UserDto dto) {
         return new ResponseEntity<>(service.save(dto), HttpStatus.CREATED);
     }
 

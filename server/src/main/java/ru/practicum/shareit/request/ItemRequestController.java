@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.RequestService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 @Validated
@@ -29,8 +27,8 @@ public class ItemRequestController {
     @GetMapping(path = "/all")
     public ResponseEntity<List<ItemRequestDto>> findAll(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
-            @RequestParam(required = false, defaultValue = "10") @Min(1) int size) {
+            @RequestParam(required = false, defaultValue = "0") int from,
+            @RequestParam(required = false, defaultValue = "10") int size) {
         return new ResponseEntity<>(requestService.findAll(from, size, userId), HttpStatus.OK);
     }
 
@@ -42,7 +40,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ResponseEntity<ItemRequestDto> save(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                                               @RequestBody @Valid ItemRequestDto itemRequestDto) {
+                                               @RequestBody ItemRequestDto itemRequestDto) {
         return new ResponseEntity<>(requestService.save(userId, itemRequestDto), HttpStatus.CREATED);
     }
 }

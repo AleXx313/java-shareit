@@ -63,21 +63,7 @@ class BookingControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void save_whenDtoIsNotValid_thenStatusIsBadRequest() throws Exception {
-        BookingRequestDto requestDto = makeRequestDto();
-        requestDto.setStart(LocalDateTime.now().minusHours(2));
-
-        mockMvc.perform(post("/bookings")
-                        .content(objectMapper.writeValueAsString(requestDto))
-                        .header("X-Sharer-User-Id", 1)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -124,23 +110,6 @@ class BookingControllerTest {
     }
 
     @Test
-    void findByBooker_whenStateIsUnknown_thenStatusIsBadRequest() throws Exception {
-        String errorMessage = "Unknown state: abrakadabra";
-
-        String result = mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1)
-                        .param("state", "abrakadabra")
-                        .param("from", "1")
-                        .param("size", "1"))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        assertThat(result.contains("Unknown state: abrakadabra")).isTrue();
-    }
-
-    @Test
     void findByOwner_whenParamsSet_thenStatusIsOkAndParamInvokedIsAsSet() throws Exception {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", 1)
@@ -161,22 +130,5 @@ class BookingControllerTest {
         verify(bookingService, times(1))
                 .findByOwner(1L, BookingState.ALL, 0, 10);
 
-    }
-
-    @Test
-    void findByOwner_whenStateIsUnknown_thenStatusIsBadRequest() throws Exception {
-        String errorMessage = "Unknown state: abrakadabra";
-
-        String result = mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", 1)
-                        .param("state", "abrakadabra")
-                        .param("from", "1")
-                        .param("size", "1"))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        assertThat(result.contains("Unknown state: abrakadabra")).isTrue();
     }
 }

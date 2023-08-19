@@ -48,27 +48,12 @@ class UserControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
         assertThat(result).isEqualTo(objectMapper.writeValueAsString(userDto));
-    }
-
-    @Test
-    void save_whenUserDtoIsNotValid_thenStatusIsBadRequest() throws Exception {
-        long userId = 1L;
-        UserDto userDto = makeDto(userId);
-        userDto.setName("");
-
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-        verify(userService, never()).save(any());
     }
 
     @Test

@@ -22,17 +22,17 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage(), e.getMessage());
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentNotValidExceptions(final MethodArgumentNotValidException e) {
-        return new ErrorResponse("Передан некорректный объект!", e.getMessage());
-    }
+//    @ExceptionHandler({MethodArgumentNotValidException.class})
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ErrorResponse handleMethodArgumentNotValidExceptions(final MethodArgumentNotValidException e) {
+//        return new ErrorResponse("Передан некорректный объект!", e.getMessage());
+//    }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        return new ErrorResponse("Unknown state: " + e.getValue().toString(), e.getMessage());
-    }
+//    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ErrorResponse handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+//        return new ErrorResponse("Unknown state: " + e.getValue().toString(), e.getMessage());
+//    }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

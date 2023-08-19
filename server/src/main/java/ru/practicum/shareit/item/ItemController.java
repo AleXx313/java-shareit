@@ -11,8 +11,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoResponse;
 import ru.practicum.shareit.item.service.ItemService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 @Validated
@@ -25,7 +23,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<ItemDto> save(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                                        @RequestBody @Valid ItemDto dto) {
+                                        @RequestBody ItemDto dto) {
         return new ResponseEntity<>(service.save(userId, dto), HttpStatus.CREATED);
     }
 
@@ -45,22 +43,22 @@ public class ItemController {
     @GetMapping
     public ResponseEntity<List<ItemDtoResponse>> getListByUserId(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
-            @RequestParam(required = false, defaultValue = "10") @Min(1) int size) {
+            @RequestParam(required = false, defaultValue = "0") int from,
+            @RequestParam(required = false, defaultValue = "10") int size) {
         return new ResponseEntity<>(service.getByUserId(userId, from, size), HttpStatus.OK);
     }
 
     @GetMapping(path = "/search")
     public ResponseEntity<List<ItemDto>> search(@RequestParam(value = "text") String text,
-                                                @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
-                                                @RequestParam(required = false, defaultValue = "10") @Min(1) int size) {
+                                                @RequestParam(required = false, defaultValue = "0") int from,
+                                                @RequestParam(required = false, defaultValue = "10") int size) {
         return new ResponseEntity<>(service.search(text, from, size), HttpStatus.OK);
     }
 
     @PostMapping(path = "/{id}/comment")
     public ResponseEntity<CommentDto> saveComment(@PathVariable(value = "id") Long itemId,
                                                   @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                                                  @RequestBody @Valid CommentRequest commentRequest) {
+                                                  @RequestBody CommentRequest commentRequest) {
         return new ResponseEntity<>(service.saveComment(itemId, userId, commentRequest), HttpStatus.OK);
     }
 }
