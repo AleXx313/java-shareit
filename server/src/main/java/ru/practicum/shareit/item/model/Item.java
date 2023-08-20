@@ -5,8 +5,6 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 @Getter
@@ -26,13 +24,10 @@ public class Item {
     @ToString.Exclude
     @JoinColumn(name = "user_id")
     private User owner;
-    @NotBlank
     @Column(name = "name")
     private String name;
-    @NotBlank
     @Column(name = "description")
     private String description;
-    @NotNull
     @Column(name = "available")
     private Boolean available;
 

@@ -7,10 +7,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.RequestService;
+import ru.practicum.shareit.util.HeaderConstant;
 
 import java.util.List;
 
-@Validated
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
@@ -20,13 +20,13 @@ public class ItemRequestController {
 
     @GetMapping
     public ResponseEntity<List<ItemRequestDto>> findAllByRequester(
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstant.USER_ID_HEADER) Long userId) {
         return new ResponseEntity<>(requestService.findAllByRequester(userId), HttpStatus.OK);
     }
 
     @GetMapping(path = "/all")
     public ResponseEntity<List<ItemRequestDto>> findAll(
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @RequestHeader(HeaderConstant.USER_ID_HEADER) Long userId,
             @RequestParam(required = false, defaultValue = "0") int from,
             @RequestParam(required = false, defaultValue = "10") int size) {
         return new ResponseEntity<>(requestService.findAll(from, size, userId), HttpStatus.OK);
@@ -34,12 +34,12 @@ public class ItemRequestController {
 
     @GetMapping(path = "{id}")
     public ResponseEntity<ItemRequestDto> findById(@PathVariable(value = "id") Long id,
-                                                   @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+                                                   @RequestHeader(HeaderConstant.USER_ID_HEADER) Long userId) {
         return new ResponseEntity<>(requestService.findById(id, userId), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<ItemRequestDto> save(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
+    public ResponseEntity<ItemRequestDto> save(@RequestHeader(HeaderConstant.USER_ID_HEADER) Long userId,
                                                @RequestBody ItemRequestDto itemRequestDto) {
         return new ResponseEntity<>(requestService.save(userId, itemRequestDto), HttpStatus.CREATED);
     }

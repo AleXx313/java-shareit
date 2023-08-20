@@ -2,19 +2,21 @@ package ru.practicum.shareit.booking.dto;
 
 import java.time.LocalDateTime;
 
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Future;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.util.valid.StartBeforeEndDateValid;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@StartBeforeEndDateValid
 public class BookItemRequestDto {
-    @Future
+    @FutureOrPresent
     @NotNull
     private LocalDateTime start;
     @Future
@@ -22,9 +24,4 @@ public class BookItemRequestDto {
     private LocalDateTime end;
     @NotNull
     private Long itemId;
-
-    @AssertTrue
-    private boolean isEndAfterStart() {
-        return start == null || end == null || end.isAfter(start);
-    }
 }
