@@ -59,7 +59,7 @@ public class ItemController {
     public ResponseEntity<Object> search(@RequestParam(value = "text") String text,
                                          @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                          @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        if(text.isBlank()){
+        if (text.isBlank()) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
         return itemClient.search(text, from, size);
