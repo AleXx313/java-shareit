@@ -51,6 +51,7 @@ public class BookingController {
     public ResponseEntity<Object> updateBook(@RequestHeader(HeaderConstant.USER_ID_HEADER) Long userId,
                                              @PathVariable(value = "bookingId") Long bookingId,
                                              @RequestParam(value = "approved") boolean approved) {
+        log.info("Response for booking с id={}, userId={}", bookingId, userId);
         return bookingClient.updateBook(userId, bookingId, approved);
     }
 

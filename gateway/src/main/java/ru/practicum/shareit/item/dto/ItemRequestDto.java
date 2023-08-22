@@ -16,12 +16,10 @@ public class ItemRequestDto {
 
     private Long id;
     @NotBlank(groups = Marker.OnCreate.class)
-    @Size(max = 255, groups = Marker.OnCreate.class)
-    @Size(min = 1, max = 255, groups = Marker.OnUpdate.class)
+    @Size(min = 1, max = 255, groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private String name;
     @NotBlank(groups = Marker.OnCreate.class)
-    @Size(max = 255, groups = Marker.OnCreate.class)
-    @Size(min = 1, max = 255, groups = Marker.OnUpdate.class)
+    @Size(min = 1, max = 255, groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private String description;
     @NotNull(groups = Marker.OnCreate.class)
     private Boolean available;
